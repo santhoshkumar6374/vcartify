@@ -878,7 +878,7 @@ function App() {
         <div className="max-w-7xl mx-auto px-4 py-2 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <span className="flex items-center gap-1.5">
-              <MapPin size={12} /> Free shipping on orders over ₹999
+              <MapPin size={12} /> Free shipping on orders over ₹99999
             </span>
           </div>
           <div className="hidden md:flex items-center gap-4">
