@@ -12,7 +12,7 @@ import {
   Shield,
   RefreshCw,
   Headphones,
-  MapPin,
+  MapPin, 
   Phone,
   Mail,
   Minus,
