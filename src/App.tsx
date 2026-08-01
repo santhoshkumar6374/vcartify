@@ -12,7 +12,7 @@ import {
   Shield,
   RefreshCw,
   Headphones,
-  MapPin, 
+  MapPin,
   Phone,
   Mail,
   Minus,
@@ -29,6 +29,7 @@ import {
   CheckCircle2,
   XCircle,
   Info,
+  LogOut,
   // Category icons
   Smartphone,
   Shirt,
@@ -57,7 +58,11 @@ import {
   CheckoutFormModal,
   type PlacedOrder,
 } from "./components/CheckoutFormModal";
-import { getLastCustomer, type SavedCustomer } from "./api/mockCustomerApi";
+import {
+  getCustomerSession,
+  clearCustomerSession,
+  type CustomerSession,
+} from "./api/mockCustomerApi";
 
 const STORE_CODE = getStoreCode();
 
@@ -278,8 +283,11 @@ interface CartItem extends StoreItem {
 }
 
 // ---- Guest cart -----------------------------------------------------------
-// There's no login anymore. Every visitor shares a single, device-local
-// cart stored under one fixed key — no per-user scoping, no auth state.
+// There's no login/account system tied to the cart itself. Every visitor
+// shares a single, device-local cart stored under one fixed key — no
+// per-user scoping, no auth state. IMPORTANT: signing out (see
+// customerSession below) must NEVER clear this key — cart and customer
+// session are intentionally independent, same as most e-commerce sites.
 const CART_STORAGE_KEY = "store_cart_guest";
 
 // ---- Toast notifications --------------------------------------------------
@@ -557,11 +565,15 @@ function App() {
 
   const [showCheckoutForm, setShowCheckoutForm] = useState(false);
 
-  // ---- Last known customer (this device) ------------------------------
+  // ---- Customer session (Amazon-style, persists like a logged-in user) --
   // Populated once a checkout has succeeded (see mockCustomerApi). Used
-  // purely to prefill the checkout form's name/mobile/address next time —
-  // it is NOT an auth/session concept, just a convenience.
-  const [lastCustomer, setLastCustomer] = useState<SavedCustomer | null>(null);
+  // both to prefill the checkout form's name/mobile/address, and as the
+  // signal that this device has a "signed in" shipping profile. It is
+  // COMPLETELY separate from the cart — signing out clears only this,
+  // never `cart`, and the cart being cleared (e.g. after an order) never
+  // clears this.
+  const [customerSession, setCustomerSession] =
+    useState<CustomerSession | null>(null);
 
   // ---- Order confirmation (replaces the old alert() on checkout) ------
   const [orderConfirmation, setOrderConfirmation] =
@@ -579,9 +591,9 @@ function App() {
   const dismissToast = (id: number) =>
     setToasts((t) => t.filter((toast) => toast.id !== id));
 
-  // On first load: restore the shared guest cart, and whatever shipping
-  // details were saved from the last successful order on this device (so
-  // the checkout form can prefill them).
+  // On first load: restore the shared guest cart, and restore the
+  // customer session (if this device previously "signed in" via a
+  // completed checkout) so the checkout form + header can reflect it.
   useEffect(() => {
     const savedCart = localStorage.getItem(CART_STORAGE_KEY);
     if (savedCart) {
@@ -591,7 +603,7 @@ function App() {
         localStorage.removeItem(CART_STORAGE_KEY);
       }
     }
-    setLastCustomer(getLastCustomer());
+    setCustomerSession(getCustomerSession());
   }, []);
 
   // Keep the guest cart saved so it survives reloads/visits.
@@ -618,10 +630,22 @@ function App() {
         shipping.addressLine2 ? ", " + shipping.addressLine2 : ""
       } - ${shipping.pincode}`,
     });
-    setLastCustomer(shipping); // prefill source for the *next* checkout
+    // Establishes/refreshes the session for next time (mockCustomerApi
+    // writes it to localStorage under its own key; this just re-reads it
+    // into state so the UI updates immediately).
+    setCustomerSession(getCustomerSession());
     setCart([]);
     setCartOpen(false);
     setShowCheckoutForm(false);
+  };
+
+  // Amazon-style "sign out": clears only the saved shipping profile/session.
+  // Deliberately does NOT touch `cart` — a signed-out guest keeps their cart,
+  // exactly like most e-commerce sites.
+  const handleLogout = () => {
+    clearCustomerSession();
+    setCustomerSession(null);
+    showToast("Signed out — saved address cleared from this device", "info");
   };
 
   // ---- Fetch store data --------------------------------------------
@@ -944,6 +968,24 @@ function App() {
 
             {/* Actions */}
             <div className="flex items-center gap-1 ml-auto">
+              {/* Account indicator — only shown once a checkout has
+                  established a session on this device. Sign out clears
+                  ONLY the saved profile (see handleLogout), never the
+                  cart. */}
+              {customerSession && (
+                <div className="hidden md:flex items-center gap-2 pl-1 pr-2 mr-1 text-sm text-gray-600 border-r border-gray-200">
+                  <span className="font-medium text-gray-800">
+                    Hi, {customerSession.name.split(" ")[0]}
+                  </span>
+                  <button
+                    onClick={handleLogout}
+                    className="flex items-center gap-1 text-gray-500 hover:text-red-600 font-semibold transition-colors"
+                    title="Sign out and clear saved address from this device"
+                  >
+                    <LogOut size={14} /> Sign out
+                  </button>
+                </div>
+              )}
               <button
                 onClick={() => setCartOpen(true)}
                 className="relative p-2.5 hover:bg-gray-100 rounded-xl flex items-center gap-2"
@@ -979,6 +1021,21 @@ function App() {
               />
             </div>
           </div>
+
+          {/* Mobile account row */}
+          {customerSession && (
+            <div className="mt-3 flex md:hidden items-center justify-between text-sm text-gray-600 px-1">
+              <span className="font-medium text-gray-800">
+                Hi, {customerSession.name.split(" ")[0]}
+              </span>
+              <button
+                onClick={handleLogout}
+                className="flex items-center gap-1 text-gray-500 hover:text-red-600 font-semibold"
+              >
+                <LogOut size={14} /> Sign out
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Navigation */}
@@ -1612,13 +1669,19 @@ function App() {
                     </span>
                   </div>
                 </div>
-                {lastCustomer && (
+                {customerSession && (
                   <p className="text-xs text-gray-500 mb-3 text-center">
                     Shipping to{" "}
                     <span className="font-semibold text-gray-700">
-                      {lastCustomer.name}
+                      {customerSession.name}
                     </span>{" "}
-                    · +91 {lastCustomer.mobile}
+                    · +91 {customerSession.mobile}{" "}
+                    <button
+                      onClick={handleLogout}
+                      className="text-blue-600 hover:underline font-medium"
+                    >
+                      (not you?)
+                    </button>
                   </p>
                 )}
                 <button
@@ -1679,6 +1742,17 @@ function App() {
                 </li>
               ))}
             </ul>
+            {customerSession && (
+              <button
+                onClick={() => {
+                  handleLogout();
+                  setMenuOpen(false);
+                }}
+                className="w-full text-left px-4 py-3 rounded-lg hover:bg-gray-100 font-medium text-red-600 flex items-center gap-2 mt-2 border-t border-gray-100 pt-4"
+              >
+                <LogOut size={16} /> Sign out
+              </button>
+            )}
           </div>
         </div>
       )}
@@ -1688,7 +1762,7 @@ function App() {
         companyName={storeName}
         cartTotal={cartTotal}
         cartCount={cartCount}
-        defaults={lastCustomer}
+        defaults={customerSession}
         onClose={() => setShowCheckoutForm(false)}
         onOrderPlaced={handleOrderPlaced}
       />
