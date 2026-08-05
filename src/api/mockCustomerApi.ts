@@ -1,3 +1,8 @@
+import { apiFetch } from "../utils/apiFetch";
+import { API_ROUTES } from "../constants/apiRoutes";
+import { getStoreCode } from "../config/storeConfig";
+import type { ApiEnvelope } from "../types/store";
+
 // TEMPORARY mock backend. Swap the bodies of these functions for real
 // apiFetch(API_ROUTES...) calls later — keep the same function names
 // and return shapes so CheckoutFormModal / App don't need to change.
@@ -76,13 +81,27 @@ export function clearCustomerSession() {
   localStorage.removeItem(SESSION_KEY);
 }
 
-/** Mock: POST /customer/check */
+interface CheckNumberResponse {
+  StoreName: string;
+  PhoneNumber: string;
+  IsRegistered: boolean;
+}
+
+/** Real: GET /api/OnlineStore/{store}/checknumber/{phonenumber} */
 export async function checkCustomerByMobile(
   mobile: string,
-): Promise<{ exists: boolean; customer: SavedCustomer | null }> {
-  const db = readDb();
-  const customer = db[mobile] ?? null;
-  return delay({ exists: !!customer, customer });
+): Promise<{ exists: boolean }> {
+  const data = await apiFetch<ApiEnvelope<CheckNumberResponse>>(
+    API_ROUTES.CHECK_PHONE_NUMBER(getStoreCode(), mobile),
+  );
+
+  if (!data.Status || !data.Response) {
+    throw new Error(
+      data.ErrorMessage || data.Message || "Couldn't verify this number.",
+    );
+  }
+
+  return { exists: data.Response.IsRegistered };
 }
 
 /** Mock: POST /otp/send */

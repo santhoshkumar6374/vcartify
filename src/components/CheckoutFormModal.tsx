@@ -82,6 +82,7 @@ export function CheckoutFormModal({
   const [otpError, setOtpError] = useState("");
   const [otpResendCooldown, setOtpResendCooldown] = useState(0);
   const [isNewCustomer, setIsNewCustomer] = useState(false);
+  const [checkError, setCheckError] = useState("");
 
   useEffect(() => {
     if (isOpen) {
@@ -94,6 +95,7 @@ export function CheckoutFormModal({
       setTouched(false);
       setOtp("");
       setOtpError("");
+      setCheckError("");
     }
   }, [isOpen, defaults]);
 
@@ -138,16 +140,21 @@ export function CheckoutFormModal({
 
     const shipping = currentShipping();
     setStep("checking");
+    setCheckError("");
 
-    const { exists } = await checkCustomerByMobile(shipping.mobile);
-    if (exists) {
-      setIsNewCustomer(false);
-      await finalizeOrder(shipping);
-    } else {
-      setIsNewCustomer(true);
+    try {
+      const { exists } = await checkCustomerByMobile(shipping.mobile);
+      setIsNewCustomer(!exists);
       await sendOtp(shipping.mobile);
       setOtpResendCooldown(30);
       setStep("otp");
+    } catch (err) {
+      setCheckError(
+        err instanceof Error
+          ? err.message
+          : "Couldn't verify this number. Please try again.",
+      );
+      setStep("form");
     }
   };
 
@@ -384,6 +391,12 @@ export function CheckoutFormModal({
               </span>
             </div>
 
+            {checkError && (
+              <p className="text-xs text-red-500 text-center -mt-1">
+                {checkError}
+              </p>
+            )}
+
             <button
               type="submit"
               className="w-full py-3.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl font-bold transition-all shadow-lg shadow-indigo-200 flex items-center justify-center gap-2 mt-2"
@@ -430,9 +443,13 @@ export function CheckoutFormModal({
                   +91 {mobile}
                 </span>
               </p>
-              {isNewCustomer && (
+              {isNewCustomer ? (
                 <p className="text-xs text-gray-400 mt-1">
                   Looks like this is your first order with us
+                </p>
+              ) : (
+                <p className="text-xs text-gray-400 mt-1">
+                  Welcome back — verify to confirm it's you
                 </p>
               )}
             </div>

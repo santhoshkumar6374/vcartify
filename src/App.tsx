@@ -718,7 +718,7 @@ function App() {
   // StoreImage is a base64 JPEG from the API; StoreName can be null on an
   // empty/unconfigured store, so we fall back to a generic title/icon.
   useEffect(() => {
-    document.title = storeData?.StoreName || "My Store";
+    document.title = storeData?.StoreName || "vCartify";
 
     const favicon = document.getElementById(
       "favicon",
@@ -901,9 +901,7 @@ function App() {
       <div className="bg-gray-900 text-white text-xs">
         <div className="max-w-7xl mx-auto px-4 py-2 flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <span className="flex items-center gap-1.5">
-              <MapPin size={12} /> Free shipping on orders over ₹99999
-            </span>
+
           </div>
           <div className="hidden md:flex items-center gap-4">
             {storeData.PhoneNumber && (
@@ -1076,15 +1074,8 @@ function App() {
       {/* Hero Carousel — pure image banners from the API. Each
           CarouselImages entry is shown as-is; no gradient or text
           overlay is added on top of it. */}
-      <section className="max-w-7xl mx-auto px-4 py-6">
-        {banners.length === 0 ? (
-          <div className="rounded-2xl bg-white border border-gray-100 h-64 md:h-96 flex flex-col items-center justify-center gap-2">
-            <ImageOff size={40} className="text-gray-300" />
-            <p className="text-gray-400 text-sm">
-              No promotional banners available
-            </p>
-          </div>
-        ) : (
+      {banners.length > 0 && (
+        <section className="max-w-7xl mx-auto px-4 py-6">
           <div className="relative rounded-2xl overflow-hidden shadow-xl h-64 md:h-96">
             {banners.map((imageUrl, idx) => (
               <img
@@ -1136,10 +1127,10 @@ function App() {
               </>
             )}
           </div>
-        )}
-      </section>
+        </section>
+      )}
       {/* Feature Bar */}
-      <section className="max-w-7xl mx-auto px-4 pb-6">
+      <section className="max-w-7xl mx-auto px-4 py-6">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           {[
             {
@@ -1750,7 +1741,7 @@ function App() {
                 }}
                 className="w-full text-left px-4 py-3 rounded-lg hover:bg-gray-100 font-medium text-red-600 flex items-center gap-2 mt-2 border-t border-gray-100 pt-4"
               >
-                <LogOut size={16} /> Sign out
+                <LogOut size={16} /> 
               </button>
             )}
           </div>
