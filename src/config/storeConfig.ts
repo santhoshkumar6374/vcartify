@@ -7,6 +7,5 @@ export function getStoreCode(): string {
   const queryStore = new URLSearchParams(window.location.search).get('store');
   if (queryStore) return queryStore;
 
-  
   return ''; // no store — same as bare production domain
 }
