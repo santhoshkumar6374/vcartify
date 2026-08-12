@@ -36,6 +36,10 @@ button, a {
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
+/* Safe area for iPhone bottom (notch/home indicator) */
+.safe-area-bottom {
+  padding-bottom: env(safe-area-inset-bottom, 0);
+}
 
 @media (min-width: 768px) {
   ::-webkit-scrollbar {

@@ -1,4 +1,4 @@
-import { Heart, ShoppingBag, Star } from "lucide-react";
+import { Heart, ShoppingBag, Star, Plus } from "lucide-react";
 import { StoreItem } from "@/types/store";
 
 interface Props {
@@ -44,7 +44,9 @@ export function ProductCard({
     bgColor ||
     NEUTRAL_BG_COLORS[Math.abs(item.ItemName.length) % NEUTRAL_BG_COLORS.length];
 
-  // LIST VIEW
+  // ═══════════════════════════════════════════════════
+  // LIST VIEW — Horizontal layout
+  // ═══════════════════════════════════════════════════
   if (viewMode === "list") {
     return (
       <article
@@ -171,7 +173,9 @@ export function ProductCard({
     );
   }
 
-  // GRID VIEW — REFINED
+  // ═══════════════════════════════════════════════════
+  // GRID VIEW — Mobile: Icon only | Desktop: Hover reveal
+  // ═══════════════════════════════════════════════════
   return (
     <article className="group flex flex-col cursor-pointer bg-white rounded-lg sm:rounded-xl overflow-hidden border border-gray-200 hover:border-gray-400 hover:shadow-md transition-all">
       <div
@@ -209,6 +213,7 @@ export function ProductCard({
           </div>
         )}
 
+        {/* Wishlist heart */}
         <button
           onClick={(e) => {
             e.stopPropagation();
@@ -225,19 +230,32 @@ export function ProductCard({
           />
         </button>
 
+        {/* ✨ MOBILE: Add to Cart ICON (bottom-right, always visible) */}
         <button
           onClick={(e) => {
             e.stopPropagation();
             onAddToCart();
           }}
-          className="absolute bottom-0 left-0 right-0 bg-gray-900 text-white py-2 sm:py-2.5 text-[10px] sm:text-xs font-semibold hover:bg-black transition-colors sm:translate-y-full sm:group-hover:translate-y-0 sm:transition-transform sm:duration-300 flex items-center justify-center gap-1.5"
+          aria-label="Add to cart"
+          className="sm:hidden absolute bottom-1.5 right-1.5 h-8 w-8 rounded-full bg-gray-900 text-white flex items-center justify-center shadow-lg active:scale-95 transition-transform"
+        >
+          <Plus size={16} strokeWidth={2.5} />
+        </button>
+
+        {/* ✨ DESKTOP: Add to Cart TEXT (hover reveal only) */}
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            onAddToCart();
+          }}
+          className="hidden sm:flex absolute bottom-0 left-0 right-0 bg-gray-900 text-white py-2.5 text-xs font-semibold hover:bg-black transition-colors translate-y-full group-hover:translate-y-0 transition-transform duration-300 items-center justify-center gap-1.5"
         >
           <ShoppingBag size={12} strokeWidth={2} />
           <span>Add to Cart</span>
         </button>
       </div>
 
-      {/* Info — REFINED */}
+      {/* Info */}
       <div className="p-2.5 sm:p-3 space-y-1 sm:space-y-1.5">
         {brand && (
           <p className="text-[9px] sm:text-[10px] font-medium tracking-wider text-gray-500 uppercase truncate">
