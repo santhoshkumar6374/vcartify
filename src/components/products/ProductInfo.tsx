@@ -42,29 +42,23 @@ export function ProductInfo({
 
   return (
     <div className="space-y-4 sm:space-y-5">
-      {/* Brand */}
       <p className="text-[10px] sm:text-xs font-medium tracking-wider text-gray-500 uppercase">
         {brand}
       </p>
 
-      {/* Product name — Responsive size */}
       <h1 className="text-xl sm:text-2xl lg:text-3xl font-semibold text-gray-900 leading-snug">
         {item.ItemName}
       </h1>
 
-      {/* Rating + Assured — Compact on mobile */}
       <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
         <div className="inline-flex items-center gap-1 bg-green-600 text-white px-2 py-0.5 rounded text-xs font-semibold">
           <span>{rating}</span>
           <Star size={10} className="fill-white" />
         </div>
-
         <span className="text-xs sm:text-sm text-gray-600">
           {reviewCount.toLocaleString()} ratings
         </span>
-
         <span className="h-4 w-px bg-gray-300" />
-
         <div className="inline-flex items-center gap-1 text-xs sm:text-sm">
           <div className="h-4 w-4 rounded-full bg-blue-600 flex items-center justify-center">
             <Check size={9} className="text-white" strokeWidth={3} />
@@ -73,10 +67,8 @@ export function ProductInfo({
         </div>
       </div>
 
-      {/* Divider */}
       <div className="h-px bg-gray-200" />
 
-      {/* Price — Responsive */}
       <div className="space-y-1">
         <div className="flex items-baseline gap-2 sm:gap-3 flex-wrap">
           <span className="text-2xl sm:text-3xl lg:text-4xl font-semibold text-gray-900">
@@ -103,7 +95,6 @@ export function ProductInfo({
         </p>
       </div>
 
-      {/* EMI Banner */}
       <div className="bg-gray-50 border border-gray-200 rounded-lg px-3 sm:px-4 py-2.5 sm:py-3 flex items-start gap-2.5 sm:gap-3">
         <div className="h-7 w-7 sm:h-8 sm:w-8 rounded-lg bg-white border border-gray-200 flex items-center justify-center shrink-0 mt-0.5">
           <CreditCard size={14} className="text-gray-600" strokeWidth={1.8} />
@@ -118,10 +109,8 @@ export function ProductInfo({
         </div>
       </div>
 
-      {/* Divider */}
       <div className="h-px bg-gray-200" />
 
-      {/* Color Selector — Compact circles */}
       <div>
         <div className="flex items-baseline gap-2 mb-2 sm:mb-3">
           <p className="text-sm font-medium text-gray-900">Color:</p>
@@ -152,7 +141,6 @@ export function ProductInfo({
         </div>
       </div>
 
-      {/* Quantity — Compact */}
       <div className="flex items-center gap-3 sm:gap-4 flex-wrap">
         <p className="text-sm font-medium text-gray-900">Quantity:</p>
         <div className="flex items-center border border-gray-300 rounded-lg overflow-hidden bg-white">
@@ -184,7 +172,6 @@ export function ProductInfo({
         )}
       </div>
 
-      {/* Delivery Check — Mobile-optimized */}
       <div className="bg-white border border-gray-200 rounded-xl p-3 sm:p-4 space-y-2.5 sm:space-y-3 shadow-sm">
         <div className="flex items-center gap-2">
           <MapPin size={16} className="text-blue-600" strokeWidth={2} />
@@ -197,7 +184,7 @@ export function ProductInfo({
             value={pincode}
             onChange={(e) => setPincode(e.target.value.replace(/\D/g, "").slice(0, 6))}
             placeholder="6-digit pincode"
-            className="flex-1 h-9 sm:h-10 px-3 sm:px-4 rounded-lg border border-gray-300 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:border-gray-900 focus:ring-2 focus:ring-gray-200 transition-all"
+            className="flex-1 h-9 sm:h-10 px-3 sm:px-4 rounded-lg border border-gray-300 text-sm text-gray-900 focus:outline-none focus:border-gray-900 focus:ring-2 focus:ring-gray-200 transition-all"
             inputMode="numeric"
           />
           <button
@@ -222,7 +209,6 @@ export function ProductInfo({
           </p>
         )}
 
-        {/* Trust badges — Grid on mobile, row on desktop */}
         <div className="grid grid-cols-3 sm:flex sm:items-center sm:gap-4 gap-2 pt-3 border-t border-gray-100">
           <div className="flex items-center gap-1 sm:gap-1.5 text-xs sm:text-sm">
             <Truck size={14} className="text-green-600 shrink-0" strokeWidth={2} />
@@ -239,7 +225,6 @@ export function ProductInfo({
         </div>
       </div>
 
-      {/* Sold by */}
       <div className="flex items-center gap-2 text-xs sm:text-sm">
         <span className="text-gray-600">Sold by</span>
         <span className="font-medium text-gray-900">vCartify Store</span>

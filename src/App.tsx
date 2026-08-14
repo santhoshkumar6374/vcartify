@@ -56,7 +56,6 @@ export default function App() {
   const [loginReason, setLoginReason] = useState<LoginReason>(null);
   const [pendingAction, setPendingAction] = useState<(() => void) | null>(null);
 
-  // ✨ Location state
   const [deliveryLocation, setDeliveryLocation] = useState<DeliveryLocation>({
     pincode: "641604",
     city: "Tirupur",
@@ -64,7 +63,6 @@ export default function App() {
   });
   const [locationModalOpen, setLocationModalOpen] = useState(false);
 
-  // Restore from localStorage
   useEffect(() => {
     const savedCart = localStorage.getItem(CART_STORAGE_KEY);
     if (savedCart) {
@@ -104,6 +102,7 @@ export default function App() {
     localStorage.setItem(LOCATION_STORAGE_KEY, JSON.stringify(deliveryLocation));
   }, [deliveryLocation]);
 
+  // ✨ Fetch store data with DEBUG logs
   useEffect(() => {
     let cancelled = false;
     async function load() {
@@ -113,6 +112,25 @@ export default function App() {
           API_ROUTES.ONLINE_STORE(STORE_CODE)
         );
         if (cancelled) return;
+
+        // ✨ DEBUG: Show backend response
+        console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+        console.log("🔍 BACKEND STORE RESPONSE");
+        console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+        console.log("🏪 Store Name:", data.Response?.StoreName);
+        console.log("📱 Store Phone:", data.Response?.PhoneNumber);
+        console.log("📦 Total Products:", data.Response?.ItemList?.length);
+        console.log("\n📋 First 5 Products:");
+        data.Response?.ItemList?.slice(0, 5).forEach((item, idx) => {
+          console.log(`\n  ${idx + 1}. ${item.ItemName}`);
+          console.log(`     Category ID: ${item.CategoryId}`);
+          console.log(`     Price: ₹${item.SellingPrice}`);
+          console.log(`     PhoneNumber: ${item.PhoneNumber || "❌ NOT SET (will use store phone)"}`);
+          console.log(`     VendorPhone: ${item.VendorPhone || "❌ NOT SET"}`);
+          console.log(`     StoreName: ${item.StoreName || "❌ NOT SET"}`);
+        });
+        console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+
         if (!data.Status) setError(data.ErrorMessage || "Failed");
         else setStoreData(data.Response);
       } catch (err) {
@@ -125,19 +143,30 @@ export default function App() {
     return () => { cancelled = true; };
   }, []);
 
+  useEffect(() => {
+    document.title = storeData?.StoreName || "vCartify";
+    const favicon = document.getElementById("favicon") as HTMLLinkElement | null;
+    if (favicon && storeData?.StoreImage) {
+      favicon.href = `data:image/png;base64,${storeData.StoreImage}`;
+    }
+  }, [storeData]);
+
   const filteredItems = useMemo(() => {
     if (!storeData) return [];
     let items = storeData.ItemList;
+
     if (activeCategory !== "all") {
       const cat = storeData.DropDownList.find(
         (c) => c.Text.toLowerCase() === activeCategory.toLowerCase()
       );
       if (cat) items = items.filter((i) => i.CategoryId === cat.Value);
     }
+
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
       items = items.filter((i) => i.ItemName.toLowerCase().includes(q));
     }
+
     return items;
   }, [storeData, activeCategory, searchQuery]);
 
@@ -180,7 +209,6 @@ export default function App() {
     }
   };
 
-  // ✨ Location handlers
   const handleLocationClick = () => {
     setLocationModalOpen(true);
   };
@@ -338,7 +366,7 @@ export default function App() {
     if (navigator.share && selectedProduct) {
       navigator.share({
         title: selectedProduct.ItemName,
-        text: `Check out ${selectedProduct.ItemName} on vCartify!`,
+        text: `Check out ${selectedProduct.ItemName} on ${storeData?.StoreName || "vCartify"}!`,
         url: window.location.href,
       }).catch(() => { /* user cancelled */ });
     } else {
@@ -467,6 +495,9 @@ export default function App() {
       {currentView === "checkout" && (
         <CheckoutPage
           cart={cart}
+          storeName={storeData.StoreName || "vCartify"}
+          storePhone={storeData.PhoneNumber || ""}
+          user={user}
           onBackToCart={() => setCurrentView("cart")}
           onOrderComplete={handleOrderComplete}
         />
@@ -534,7 +565,6 @@ export default function App() {
         onLoginSuccess={handleLoginSuccess}
       />
 
-      {/* ✨ Location Modal */}
       <LocationModal
         isOpen={locationModalOpen}
         currentLocation={deliveryLocation}
