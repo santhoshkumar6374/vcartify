@@ -26,26 +26,26 @@ const OFFERS = [
 
 export function ProductOffers() {
   return (
-    <div className="bg-white border border-gray-200 rounded-xl p-5 shadow-sm">
-      <div className="flex items-center gap-2 mb-4">
-        <Tag size={18} className="text-orange-500" fill="currentColor" strokeWidth={0} />
-        <h3 className="font-medium text-gray-900 text-base">Available Offers</h3>
+    <div className="bg-white border border-gray-200 rounded-xl p-4 sm:p-5 shadow-sm">
+      <div className="flex items-center gap-2 mb-3 sm:mb-4">
+        <Tag size={16} className="text-orange-500" fill="currentColor" strokeWidth={0} />
+        <h3 className="font-medium text-gray-900 text-sm sm:text-base">Available Offers</h3>
       </div>
 
-      <div className="space-y-3">
+      <div className="space-y-2.5 sm:space-y-3">
         {OFFERS.map((offer, idx) => {
           const Icon = offer.icon;
           return (
-            <div key={idx} className="flex items-start gap-3">
-              <div className={`h-8 w-8 rounded-lg ${offer.color} flex items-center justify-center shrink-0 mt-0.5`}>
-                <Icon size={14} strokeWidth={2} />
+            <div key={idx} className="flex items-start gap-2.5 sm:gap-3">
+              <div className={`h-7 w-7 sm:h-8 sm:w-8 rounded-lg ${offer.color} flex items-center justify-center shrink-0 mt-0.5`}>
+                <Icon size={12} strokeWidth={2} />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm text-gray-800">
+                <p className="text-xs sm:text-sm text-gray-800">
                   <span className="font-medium">{offer.type}:</span>{" "}
                   {offer.text}
                 </p>
-                <button className="text-xs text-blue-600 font-medium hover:underline mt-0.5">
+                <button className="text-[11px] sm:text-xs text-blue-600 font-medium hover:underline mt-0.5">
                   {offer.link} →
                 </button>
               </div>
@@ -54,8 +54,8 @@ export function ProductOffers() {
         })}
       </div>
 
-      <div className="mt-4 pt-3 border-t border-gray-100">
-        <button className="text-sm text-blue-600 font-medium hover:underline">
+      <div className="mt-3 sm:mt-4 pt-3 border-t border-gray-100">
+        <button className="text-xs sm:text-sm text-blue-600 font-medium hover:underline">
           View all offers →
         </button>
       </div>

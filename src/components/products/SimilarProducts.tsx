@@ -34,12 +34,12 @@ export function SimilarProducts({
   if (displayItems.length === 0) return null;
 
   return (
-    <section className="mt-8 pt-6 border-t border-gray-200">
-      <h2 className="text-2xl lg:text-3xl font-semibold text-gray-900 mb-6">
+    <section className="mt-4 sm:mt-8 pt-4 sm:pt-6 border-t border-gray-200 px-3 sm:px-0">
+      <h2 className="text-xl sm:text-2xl lg:text-3xl font-semibold text-gray-900 mb-4 sm:mb-6">
         Similar Products
       </h2>
 
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 lg:gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 sm:gap-3 lg:gap-4">
         {displayItems.map((item) => (
           <ProductCard
             key={item.ItemName}

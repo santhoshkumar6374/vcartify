@@ -25,14 +25,14 @@ export function ProductGallery({
     setActiveIdx((i) => (i + 1) % THUMB_LABELS.length);
 
   return (
-    <div className="flex gap-4">
-      {/* Thumbnails */}
-      <div className="flex flex-col gap-3">
+    <div className="flex flex-col-reverse sm:flex-row gap-3 sm:gap-4">
+      {/* ═══ Thumbnails — Horizontal on mobile, vertical on desktop ═══ */}
+      <div className="flex flex-row sm:flex-col gap-2 sm:gap-3 overflow-x-auto scrollbar-hide">
         {THUMB_LABELS.map((label, idx) => (
           <button
             key={idx}
             onClick={() => setActiveIdx(idx)}
-            className={`h-16 w-16 sm:h-20 sm:w-20 rounded-lg bg-gray-100 flex items-center justify-center transition-all border-2 overflow-hidden ${
+            className={`shrink-0 h-14 w-14 sm:h-16 sm:w-16 lg:h-20 lg:w-20 rounded-lg bg-gray-100 flex items-center justify-center transition-all border-2 overflow-hidden ${
               activeIdx === idx
                 ? "border-gray-900 shadow-md"
                 : "border-gray-200 hover:border-gray-400 opacity-70 hover:opacity-100"
@@ -45,7 +45,7 @@ export function ProductGallery({
                 className="h-full w-full object-contain p-1"
               />
             ) : (
-              <span className="text-[10px] font-medium text-gray-700 text-center px-1">
+              <span className="text-[9px] sm:text-[10px] font-medium text-gray-700 text-center px-1">
                 {label}
               </span>
             )}
@@ -53,35 +53,35 @@ export function ProductGallery({
         ))}
       </div>
 
-      {/* Main Image */}
-      <div className="relative flex-1 aspect-square rounded-2xl bg-white overflow-hidden border border-gray-200 shadow-sm group">
+      {/* ═══ Main Image ═══ */}
+      <div className="relative flex-1 aspect-square rounded-xl sm:rounded-2xl bg-white overflow-hidden border border-gray-200 shadow-sm group">
         {item.FileUrl ? (
           <img
             src={item.FileUrl}
             alt={item.ItemName}
-            className="h-full w-full object-contain p-8"
+            className="h-full w-full object-contain p-4 sm:p-6 lg:p-8"
           />
         ) : (
           <div className="absolute inset-0 flex items-center justify-center bg-gray-50">
-            <h2 className="text-3xl lg:text-4xl font-semibold text-gray-800 text-center px-6">
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-semibold text-gray-800 text-center px-4 sm:px-6">
               {item.ItemName}
             </h2>
           </div>
         )}
 
-        {/* Top-right icons */}
-        <div className="absolute top-4 right-4 flex flex-col gap-2">
+        {/* Top-right icons — Always visible on mobile */}
+        <div className="absolute top-2 sm:top-4 right-2 sm:right-4 flex flex-col gap-2">
           <button
             onClick={onToggleWishlist}
             aria-label="Add to wishlist"
-            className="h-10 w-10 rounded-full bg-white border border-gray-200 flex items-center justify-center hover:border-gray-400 hover:scale-110 transition-all shadow-md group/wish"
+            className="h-9 w-9 sm:h-10 sm:w-10 rounded-full bg-white border border-gray-200 flex items-center justify-center hover:border-gray-400 hover:scale-110 transition-all shadow-md"
           >
             <Heart
-              size={18}
+              size={16}
               className={
                 isWishlisted
                   ? "fill-red-500 text-red-500"
-                  : "text-gray-600 group-hover/wish:text-gray-900"
+                  : "text-gray-600 hover:text-gray-900"
               }
               strokeWidth={2}
             />
@@ -89,30 +89,30 @@ export function ProductGallery({
           <button
             onClick={onShare}
             aria-label="Share product"
-            className="h-10 w-10 rounded-full bg-white border border-gray-200 flex items-center justify-center hover:border-gray-400 hover:scale-110 transition-all shadow-md"
+            className="h-9 w-9 sm:h-10 sm:w-10 rounded-full bg-white border border-gray-200 flex items-center justify-center hover:border-gray-400 hover:scale-110 transition-all shadow-md"
           >
-            <Share2 size={18} className="text-gray-600 hover:text-gray-900" strokeWidth={2} />
+            <Share2 size={16} className="text-gray-600 hover:text-gray-900" strokeWidth={2} />
           </button>
         </div>
 
-        {/* Prev/Next arrows */}
+        {/* Prev/Next arrows — Always visible on mobile */}
         <button
           onClick={goPrev}
           aria-label="Previous image"
-          className="absolute left-3 top-1/2 -translate-y-1/2 h-10 w-10 rounded-full bg-white border border-gray-200 flex items-center justify-center hover:bg-gray-900 hover:text-white hover:border-gray-900 transition-all shadow-md opacity-0 group-hover:opacity-100"
+          className="absolute left-2 sm:left-3 top-1/2 -translate-y-1/2 h-9 w-9 sm:h-10 sm:w-10 rounded-full bg-white border border-gray-200 flex items-center justify-center hover:bg-gray-900 hover:text-white hover:border-gray-900 transition-all shadow-md sm:opacity-0 sm:group-hover:opacity-100"
         >
-          <ChevronLeft size={20} strokeWidth={2} />
+          <ChevronLeft size={18} strokeWidth={2} />
         </button>
         <button
           onClick={goNext}
           aria-label="Next image"
-          className="absolute right-3 top-1/2 -translate-y-1/2 h-10 w-10 rounded-full bg-white border border-gray-200 flex items-center justify-center hover:bg-gray-900 hover:text-white hover:border-gray-900 transition-all shadow-md opacity-0 group-hover:opacity-100"
+          className="absolute right-2 sm:right-3 top-1/2 -translate-y-1/2 h-9 w-9 sm:h-10 sm:w-10 rounded-full bg-white border border-gray-200 flex items-center justify-center hover:bg-gray-900 hover:text-white hover:border-gray-900 transition-all shadow-md sm:opacity-0 sm:group-hover:opacity-100"
         >
-          <ChevronRight size={20} strokeWidth={2} />
+          <ChevronRight size={18} strokeWidth={2} />
         </button>
 
         {/* Image counter */}
-        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/60 backdrop-blur text-white text-xs font-medium px-3 py-1 rounded-full">
+        <div className="absolute bottom-2 sm:bottom-4 left-1/2 -translate-x-1/2 bg-black/60 backdrop-blur text-white text-xs font-medium px-2.5 py-1 rounded-full">
           {activeIdx + 1} / {THUMB_LABELS.length}
         </div>
       </div>
