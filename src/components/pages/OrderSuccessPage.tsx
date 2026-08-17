@@ -25,14 +25,14 @@ export function OrderSuccessPage({ orderId, onContinueShopping }: Props) {
           Thank you for shopping with vCartify
         </p>
 
-        <div className="bg-gray-100 border-2 border-black rounded-xl p-4 mb-6">
+       {/* <div className="bg-gray-100 border-2 border-black rounded-xl p-4 mb-6">
           <p className="text-xs text-black uppercase tracking-widest font-black mb-1">
             Order ID
           </p>
           <p className="text-2xl font-black text-black tracking-tight">{orderId}</p>
         </div>
-
-        <div className="flex items-center gap-3 justify-center text-sm text-black font-bold mb-8">
+            */}
+        {/*<div className="flex items-center gap-3 justify-center text-sm text-black font-bold mb-8">
           <Package size={16} className="text-black" strokeWidth={2.5} />
           <span>Expected delivery in 3-5 days</span>
         </div>
@@ -52,7 +52,8 @@ export function OrderSuccessPage({ orderId, onContinueShopping }: Props) {
             <Home size={16} strokeWidth={2.5} />
             Back to Home
           </button>
-        </div>
+        </div> */}
+      
       </div>
     </div>
   );
