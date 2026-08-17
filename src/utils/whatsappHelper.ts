@@ -146,9 +146,6 @@ ${productsList}
 ${address ? `*Address:* ${address}` : ""}
 
 ━━━━━━━━━━━━━━━━━━━━
-💳 *PAYMENT:* ${paymentMethod.toUpperCase()}
-📋 *Order ID:* ${orderId}
-━━━━━━━━━━━━━━━━━━━━
 
 Please confirm my order. Thank you! 🙏`;
 }

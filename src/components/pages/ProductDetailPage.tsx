@@ -3,7 +3,6 @@ import { StoreItem } from "@/types/store";
 import { Breadcrumb } from "@/components/layout/Breadcrumb";
 import { ProductGallery } from "@/components/products/ProductGallery";
 import { ProductInfo } from "@/components/products/ProductInfo";
-import { ProductOffers } from "@/components/products/ProductOffers";
 import { ProductTabs } from "@/components/products/ProductTabs";
 import { SimilarProducts } from "@/components/products/SimilarProducts";
 
@@ -51,6 +50,7 @@ export function ProductDetailPage({
 
         <div className="mt-0 sm:mt-4 bg-white rounded-none sm:rounded-2xl border-0 sm:border border-gray-200 sm:shadow-sm overflow-hidden">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-8 lg:gap-12 p-3 sm:p-6 lg:p-8">
+            {/* LEFT: Gallery */}
             <div>
               <ProductGallery
                 item={item}
@@ -60,11 +60,11 @@ export function ProductDetailPage({
               />
             </div>
 
+            {/* RIGHT: Info (No Color, No EMI, No Offers) */}
             <div className="space-y-4 sm:space-y-6">
               <ProductInfo item={item} />
 
-              <ProductOffers />
-
+              {/* Desktop CTAs */}
               <div className="hidden lg:grid grid-cols-2 gap-3 pt-2">
                 <button
                   onClick={() => onAddToCart(item)}
@@ -87,10 +87,12 @@ export function ProductDetailPage({
           </div>
         </div>
 
+        {/* Tabs section */}
         <div className="mt-3 sm:mt-6">
           <ProductTabs item={item} />
         </div>
 
+        {/* Similar Products */}
         <SimilarProducts
           currentItem={item}
           allItems={allItems}

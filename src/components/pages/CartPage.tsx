@@ -1,50 +1,153 @@
-import { useState } from "react";
-import { ShoppingCart, Minus, Plus, Trash2, Tag, Shield, Truck, RefreshCw, ArrowRight } from "lucide-react";
+import { useState, useEffect } from "react";
+import {
+  ShoppingCart,
+  Minus,
+  Plus,
+  Trash2,
+  Shield,
+  Truck,
+  RefreshCw,
+  ArrowRight,
+  User,
+  Phone,
+  MapPin,
+  Home,
+} from "lucide-react";
 import { StoreItem } from "@/types/store";
+import { sendOrderViaWhatsApp } from "@/utils/whatsappHelper";
 
 interface CartItem extends StoreItem {
   qty: number;
 }
 
+interface CustomerDetails {
+  name: string;
+  phone: string;
+  address: string;
+  city: string;
+  pincode: string;
+}
+
 interface Props {
   cart: CartItem[];
+  storeName?: string;
+  storePhone?: string;
   onUpdateQty: (itemName: string, newQty: number) => void;
   onRemove: (itemName: string) => void;
-  onCheckout: () => void;
+  onOrderComplete: (orderId: string) => void;
   onContinueShopping: () => void;
 }
 
-const COUPONS = [
-  { code: "VCFIRST", desc: "₹200 off" },
-  { code: "SAVE10", desc: "10% off" },
-  { code: "FLAT50", desc: "₹50 off" },
-];
+const CUSTOMER_STORAGE_KEY = "store_customer_details";
 
 export function CartPage({
   cart,
+  storeName = "vCartify",
+  storePhone = "",
   onUpdateQty,
   onRemove,
-  onCheckout,
+  onOrderComplete,
   onContinueShopping,
 }: Props) {
-  const [couponCode, setCouponCode] = useState("");
-  const [appliedCoupon, setAppliedCoupon] = useState<string | null>(null);
+  // ✨ Customer details state
+  const [customer, setCustomer] = useState<CustomerDetails>({
+    name: "",
+    phone: "",
+    address: "",
+    city: "",
+    pincode: "",
+  });
+
+  const [errors, setErrors] = useState<Partial<CustomerDetails>>({});
+
+  // Load saved customer details
+  useEffect(() => {
+    const saved = localStorage.getItem(CUSTOMER_STORAGE_KEY);
+    if (saved) {
+      try {
+        setCustomer(JSON.parse(saved));
+      } catch {
+        /* ignore */
+      }
+    }
+  }, []);
 
   const subtotal = cart.reduce((sum, item) => sum + item.SellingPrice * item.qty, 0);
   const originalTotal = cart.reduce((sum, item) => sum + item.MRP * item.qty, 0);
   const discount = originalTotal - subtotal;
-  const couponDiscount = appliedCoupon ? 200 : 0;
-  const total = subtotal - couponDiscount;
+  const total = subtotal;
 
-  const handleApplyCoupon = (code?: string) => {
-    const finalCode = code || couponCode.toUpperCase();
-    const valid = COUPONS.find((c) => c.code === finalCode);
-    if (valid) {
-      setAppliedCoupon(finalCode);
-      setCouponCode(finalCode);
-    } else {
-      alert("Invalid coupon code");
+  // Handle field change
+  const handleFieldChange = (field: keyof CustomerDetails, value: string) => {
+    setCustomer((prev) => ({ ...prev, [field]: value }));
+    setErrors((prev) => ({ ...prev, [field]: "" }));
+  };
+
+  // Validate form
+  const validateForm = (): boolean => {
+    const newErrors: Partial<CustomerDetails> = {};
+
+    if (!customer.name.trim()) newErrors.name = "Name is required";
+    if (customer.name.trim().length < 2) newErrors.name = "Name too short";
+
+    if (!customer.phone.trim()) newErrors.phone = "Phone is required";
+    if (!/^\d{10}$/.test(customer.phone)) newErrors.phone = "Enter 10-digit number";
+
+    if (!customer.address.trim()) newErrors.address = "Address is required";
+    if (customer.address.trim().length < 5) newErrors.address = "Address too short";
+
+    if (!customer.city.trim()) newErrors.city = "City is required";
+
+    if (!customer.pincode.trim()) newErrors.pincode = "Pincode is required";
+    if (!/^\d{6}$/.test(customer.pincode)) newErrors.pincode = "Enter 6-digit pincode";
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  // ✨ Place Order → Direct WhatsApp
+  const handlePlaceOrder = () => {
+    if (!validateForm()) {
+      // Scroll to first error
+      const firstError = document.querySelector('[data-error="true"]');
+      firstError?.scrollIntoView({ behavior: "smooth", block: "center" });
+      return;
     }
+
+    // Save customer details
+    localStorage.setItem(CUSTOMER_STORAGE_KEY, JSON.stringify(customer));
+
+    const orderId = `VC${Date.now().toString().slice(-8)}`;
+    const addressString = `${customer.address}, ${customer.city} - ${customer.pincode}`;
+
+    // ✨ DEBUG LOGS
+    console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+    console.log("🛒 PLACING ORDER");
+    console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+    console.log("Store Name:", storeName);
+    console.log("Store Phone:", storePhone);
+    console.log("Customer:", customer);
+    console.log("Cart Items:", cart.length);
+    console.log("Total:", total);
+    console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+
+    // Send order to WhatsApp
+    sendOrderViaWhatsApp({
+      storeName,
+      storePhone,
+      cart,
+      subtotal,
+      discount,
+      total,
+      paymentMethod: "Contact for Payment",
+      customerName: customer.name,
+      customerMobile: customer.phone,
+      address: addressString,
+      orderId,
+    });
+
+    // Show success page
+    onOrderComplete(orderId);
   };
 
   // ─── Empty Cart State ─────────────────────────────
@@ -88,8 +191,9 @@ export function CartPage({
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
-          {/* LEFT: Cart Items */}
-          <div className="lg:col-span-2 space-y-3 sm:space-y-4">
+          {/* LEFT: Cart Items + Address Form */}
+          <div className="lg:col-span-2 space-y-4">
+            {/* Cart Items */}
             {cart.map((item) => {
               const itemDiscount = item.MRP > item.SellingPrice
                 ? Math.round(((item.MRP - item.SellingPrice) / item.MRP) * 100)
@@ -173,47 +277,143 @@ export function CartPage({
               );
             })}
 
-            {/* Coupon Section */}
-            <div className="bg-white rounded-lg sm:rounded-xl border border-gray-200 p-3 sm:p-5">
-              <div className="flex items-center gap-2 mb-3 sm:mb-4">
-                <Tag size={16} className="text-orange-500" fill="currentColor" strokeWidth={0} />
-                <h3 className="font-semibold text-black text-base sm:text-lg">Apply Coupon</h3>
+            {/* ✨ ADDRESS FORM */}
+            <div className="bg-white rounded-lg sm:rounded-xl border-2 border-black p-4 sm:p-6">
+              <div className="flex items-center gap-2 mb-4">
+                <MapPin size={20} className="text-black" strokeWidth={2} />
+                <h3 className="font-semibold text-black text-lg">
+                  Delivery Details
+                </h3>
               </div>
+              <p className="text-xs text-gray-600 mb-5">
+                Please provide your details to place the order
+              </p>
 
-              <div className="flex gap-2 mb-3 sm:mb-4">
-                <input
-                  type="text"
-                  value={couponCode}
-                  onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
-                  placeholder="Enter code"
-                  className="flex-1 h-10 sm:h-11 px-3 sm:px-4 rounded-lg border border-gray-300 text-sm text-black focus:outline-none focus:border-black transition-colors"
-                />
-                <button
-                  onClick={() => handleApplyCoupon()}
-                  className="h-10 sm:h-11 px-4 sm:px-6 rounded-lg bg-black text-white font-medium text-sm hover:bg-gray-800 transition-colors"
-                >
-                  Apply
-                </button>
-              </div>
-
-              {appliedCoupon && (
-                <div className="mb-3 bg-green-50 border border-green-200 text-green-800 rounded-lg p-2 sm:p-3">
-                  <p className="text-xs sm:text-sm font-semibold">
-                    ✓ {appliedCoupon} applied! Saved ₹{couponDiscount}
-                  </p>
+              <div className="space-y-4">
+                {/* Name */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-800 mb-1.5">
+                    <User size={14} className="inline mr-1" strokeWidth={2} />
+                    Full Name *
+                  </label>
+                  <input
+                    type="text"
+                    value={customer.name}
+                    onChange={(e) => handleFieldChange("name", e.target.value)}
+                    placeholder="Enter your name"
+                    data-error={!!errors.name}
+                    className={`w-full h-11 px-4 rounded-lg border-2 text-sm text-black focus:outline-none transition-colors ${
+                      errors.name
+                        ? "border-red-500 focus:border-red-600"
+                        : "border-gray-300 focus:border-black"
+                    }`}
+                  />
+                  {errors.name && (
+                    <p className="text-xs text-red-600 mt-1 font-medium">{errors.name}</p>
+                  )}
                 </div>
-              )}
 
-              <div className="flex gap-1.5 sm:gap-2 flex-wrap">
-                {COUPONS.map((c) => (
-                  <button
-                    key={c.code}
-                    onClick={() => handleApplyCoupon(c.code)}
-                    className="px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-lg border border-gray-300 text-gray-800 text-[10px] sm:text-xs font-semibold hover:border-black hover:bg-gray-100 transition-colors"
-                  >
-                    {c.code}
-                  </button>
-                ))}
+                {/* Phone */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-800 mb-1.5">
+                    <Phone size={14} className="inline mr-1" strokeWidth={2} />
+                    Mobile Number *
+                  </label>
+                  <div className="flex">
+                    <span className="inline-flex items-center px-3 rounded-l-lg border-2 border-r-0 border-gray-300 bg-gray-100 text-gray-700 text-sm font-medium">
+                      +91
+                    </span>
+                    <input
+                      type="tel"
+                      value={customer.phone}
+                      onChange={(e) =>
+                        handleFieldChange("phone", e.target.value.replace(/\D/g, "").slice(0, 10))
+                      }
+                      placeholder="10-digit mobile"
+                      inputMode="numeric"
+                      data-error={!!errors.phone}
+                      className={`flex-1 h-11 px-4 rounded-r-lg border-2 text-sm text-black focus:outline-none transition-colors ${
+                        errors.phone
+                          ? "border-red-500 focus:border-red-600"
+                          : "border-gray-300 focus:border-black"
+                      }`}
+                    />
+                  </div>
+                  {errors.phone && (
+                    <p className="text-xs text-red-600 mt-1 font-medium">{errors.phone}</p>
+                  )}
+                </div>
+
+                {/* Address */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-800 mb-1.5">
+                    <Home size={14} className="inline mr-1" strokeWidth={2} />
+                    Full Address *
+                  </label>
+                  <textarea
+                    value={customer.address}
+                    onChange={(e) => handleFieldChange("address", e.target.value)}
+                    placeholder="House no, street, area, landmark"
+                    rows={3}
+                    data-error={!!errors.address}
+                    className={`w-full px-4 py-3 rounded-lg border-2 text-sm text-black focus:outline-none transition-colors resize-none ${
+                      errors.address
+                        ? "border-red-500 focus:border-red-600"
+                        : "border-gray-300 focus:border-black"
+                    }`}
+                  />
+                  {errors.address && (
+                    <p className="text-xs text-red-600 mt-1 font-medium">{errors.address}</p>
+                  )}
+                </div>
+
+                {/* City + Pincode (side by side) */}
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-800 mb-1.5">
+                      City *
+                    </label>
+                    <input
+                      type="text"
+                      value={customer.city}
+                      onChange={(e) => handleFieldChange("city", e.target.value)}
+                      placeholder="City name"
+                      data-error={!!errors.city}
+                      className={`w-full h-11 px-4 rounded-lg border-2 text-sm text-black focus:outline-none transition-colors ${
+                        errors.city
+                          ? "border-red-500 focus:border-red-600"
+                          : "border-gray-300 focus:border-black"
+                      }`}
+                    />
+                    {errors.city && (
+                      <p className="text-xs text-red-600 mt-1 font-medium">{errors.city}</p>
+                    )}
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-800 mb-1.5">
+                      Pincode *
+                    </label>
+                    <input
+                      type="text"
+                      value={customer.pincode}
+                      onChange={(e) =>
+                        handleFieldChange("pincode", e.target.value.replace(/\D/g, "").slice(0, 6))
+                      }
+                      placeholder="6-digit code"
+                      inputMode="numeric"
+                      data-error={!!errors.pincode}
+                      className={`w-full h-11 px-4 rounded-lg border-2 text-sm text-black focus:outline-none transition-colors ${
+                        errors.pincode
+                          ? "border-red-500 focus:border-red-600"
+                          : "border-gray-300 focus:border-black"
+                      }`}
+                    />
+                    {errors.pincode && (
+                      <p className="text-xs text-red-600 mt-1 font-medium">{errors.pincode}</p>
+                    )}
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -228,18 +428,14 @@ export function CartPage({
               <div className="space-y-3 pt-2">
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-700">Price ({cart.length} items)</span>
-                  <span className="font-semibold text-black">₹{originalTotal.toLocaleString()}</span>
+                  <span className="font-semibold text-black">
+                    ₹{originalTotal.toLocaleString()}
+                  </span>
                 </div>
                 {discount > 0 && (
                   <div className="flex justify-between text-sm text-green-600">
                     <span>Discount</span>
                     <span className="font-semibold">−₹{discount.toLocaleString()}</span>
-                  </div>
-                )}
-                {couponDiscount > 0 && (
-                  <div className="flex justify-between text-sm text-green-600">
-                    <span>Coupon ({appliedCoupon})</span>
-                    <span className="font-semibold">−₹{couponDiscount.toLocaleString()}</span>
                   </div>
                 )}
                 <div className="flex justify-between text-sm">
@@ -260,19 +456,23 @@ export function CartPage({
               {discount > 0 && (
                 <div className="bg-green-50 border border-green-200 rounded-lg p-3 text-center">
                   <p className="text-sm font-semibold text-green-700">
-                    🎉 You save ₹{(discount + couponDiscount).toLocaleString()}!
+                    🎉 You save ₹{discount.toLocaleString()}!
                   </p>
                 </div>
               )}
 
-              {/* Only Place Order button */}
+              {/* Place Order Button */}
               <button
-                onClick={onCheckout}
+                onClick={handlePlaceOrder}
                 className="w-full h-12 rounded-lg bg-black text-white font-semibold text-base flex items-center justify-center gap-2 hover:bg-gray-800 transition-all"
               >
                 Place Order
                 <ArrowRight size={18} strokeWidth={2} />
               </button>
+
+              <p className="text-xs text-center text-gray-500">
+                Fill delivery details to place order
+              </p>
 
               <div className="flex items-center justify-around pt-2 text-xs text-gray-600">
                 <div className="flex items-center gap-1">
@@ -292,7 +492,7 @@ export function CartPage({
           </div>
         </div>
 
-        {/* MOBILE: Sticky bottom bar — Only Place Order */}
+        {/* MOBILE: Sticky bottom bar */}
         <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-2xl z-40 p-3">
           <div className="flex items-center justify-between gap-3">
             <div className="flex-1">
@@ -302,12 +502,12 @@ export function CartPage({
               </p>
               {discount > 0 && (
                 <p className="text-[10px] text-green-600 font-medium">
-                  Save ₹{(discount + couponDiscount).toLocaleString()}
+                  Save ₹{discount.toLocaleString()}
                 </p>
               )}
             </div>
             <button
-              onClick={onCheckout}
+              onClick={handlePlaceOrder}
               className="h-12 px-6 rounded-lg bg-black text-white font-semibold text-sm flex items-center justify-center gap-2 hover:bg-gray-800 transition-all shrink-0"
             >
               Place Order

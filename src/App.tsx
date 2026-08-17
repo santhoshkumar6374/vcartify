@@ -7,13 +7,8 @@ import { HomePage } from "@/components/pages/HomePage";
 import { ProductListPage } from "@/components/pages/ProductListPage";
 import { ProductDetailPage } from "@/components/pages/ProductDetailPage";
 import { CartPage } from "@/components/pages/CartPage";
-import { CheckoutPage } from "@/components/pages/CheckoutPage";
 import { OrderSuccessPage } from "@/components/pages/OrderSuccessPage";
 import { WishlistPage } from "@/components/pages/WishlistPage";
-import { OrdersPage } from "@/components/pages/OrdersPage";
-import { AddressesPage } from "@/components/pages/AddressesPage";
-import { NotificationsPage } from "@/components/pages/NotificationsPage";
-import { LoginModal, LoggedInUser } from "@/components/modals/LoginModal";
 import { LocationModal, DeliveryLocation } from "@/components/modals/LocationModal";
 import { API_ROUTES } from "@/constants/apiRoutes";
 import { apiFetch } from "@/utils/apiFetch";
@@ -23,14 +18,10 @@ import { getStoreCode } from "@/config/storeConfig";
 const STORE_CODE = getStoreCode();
 const CART_STORAGE_KEY = "store_cart_guest";
 const WISHLIST_STORAGE_KEY = "store_wishlist_guest";
-const USER_STORAGE_KEY = "store_user";
 const LOCATION_STORAGE_KEY = "store_delivery_location";
 
 type PageView =
-  | "home" | "products" | "detail" | "cart" | "checkout"
-  | "success" | "wishlist" | "orders" | "addresses" | "notifications";
-
-type LoginReason = "cart" | "wishlist" | "checkout" | "profile" | "orders" | null;
+  | "home" | "products" | "detail" | "cart" | "success" | "wishlist";
 
 interface CartItem extends StoreItem {
   qty: number;
@@ -51,11 +42,6 @@ export default function App() {
   const [cart, setCart] = useState<CartItem[]>([]);
   const [wishlist, setWishlist] = useState<string[]>([]);
 
-  const [user, setUser] = useState<LoggedInUser | null>(null);
-  const [loginModalOpen, setLoginModalOpen] = useState(false);
-  const [loginReason, setLoginReason] = useState<LoginReason>(null);
-  const [pendingAction, setPendingAction] = useState<(() => void) | null>(null);
-
   const [deliveryLocation, setDeliveryLocation] = useState<DeliveryLocation>({
     pincode: "641604",
     city: "Tirupur",
@@ -63,6 +49,7 @@ export default function App() {
   });
   const [locationModalOpen, setLocationModalOpen] = useState(false);
 
+  // Restore from localStorage
   useEffect(() => {
     const savedCart = localStorage.getItem(CART_STORAGE_KEY);
     if (savedCart) {
@@ -71,10 +58,6 @@ export default function App() {
     const savedWishlist = localStorage.getItem(WISHLIST_STORAGE_KEY);
     if (savedWishlist) {
       try { setWishlist(JSON.parse(savedWishlist)); } catch { /* ignore */ }
-    }
-    const savedUser = localStorage.getItem(USER_STORAGE_KEY);
-    if (savedUser) {
-      try { setUser(JSON.parse(savedUser)); } catch { /* ignore */ }
     }
     const savedLocation = localStorage.getItem(LOCATION_STORAGE_KEY);
     if (savedLocation) {
@@ -91,18 +74,9 @@ export default function App() {
   }, [wishlist]);
 
   useEffect(() => {
-    if (user) {
-      localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(user));
-    } else {
-      localStorage.removeItem(USER_STORAGE_KEY);
-    }
-  }, [user]);
-
-  useEffect(() => {
     localStorage.setItem(LOCATION_STORAGE_KEY, JSON.stringify(deliveryLocation));
   }, [deliveryLocation]);
 
-  // ✨ Fetch store data with DEBUG logs
   useEffect(() => {
     let cancelled = false;
     async function load() {
@@ -112,25 +86,6 @@ export default function App() {
           API_ROUTES.ONLINE_STORE(STORE_CODE)
         );
         if (cancelled) return;
-
-        // ✨ DEBUG: Show backend response
-        console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
-        console.log("🔍 BACKEND STORE RESPONSE");
-        console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
-        console.log("🏪 Store Name:", data.Response?.StoreName);
-        console.log("📱 Store Phone:", data.Response?.PhoneNumber);
-        console.log("📦 Total Products:", data.Response?.ItemList?.length);
-        console.log("\n📋 First 5 Products:");
-        data.Response?.ItemList?.slice(0, 5).forEach((item, idx) => {
-          console.log(`\n  ${idx + 1}. ${item.ItemName}`);
-          console.log(`     Category ID: ${item.CategoryId}`);
-          console.log(`     Price: ₹${item.SellingPrice}`);
-          console.log(`     PhoneNumber: ${item.PhoneNumber || "❌ NOT SET (will use store phone)"}`);
-          console.log(`     VendorPhone: ${item.VendorPhone || "❌ NOT SET"}`);
-          console.log(`     StoreName: ${item.StoreName || "❌ NOT SET"}`);
-        });
-        console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
-
         if (!data.Status) setError(data.ErrorMessage || "Failed");
         else setStoreData(data.Response);
       } catch (err) {
@@ -175,40 +130,6 @@ export default function App() {
       ? "All Products"
       : activeCategory.charAt(0).toUpperCase() + activeCategory.slice(1);
 
-  const requireLogin = (reason: LoginReason, action: () => void) => {
-    if (user) {
-      action();
-    } else {
-      setLoginReason(reason);
-      setPendingAction(() => action);
-      setLoginModalOpen(true);
-    }
-  };
-
-  const handleLoginSuccess = (loggedInUser: LoggedInUser) => {
-    setUser(loggedInUser);
-    setLoginModalOpen(false);
-    setLoginReason(null);
-    if (pendingAction) {
-      setTimeout(() => {
-        pendingAction();
-        setPendingAction(null);
-      }, 100);
-    }
-  };
-
-  const handleLogout = () => {
-    setUser(null);
-    setDrawerOpen(false);
-  };
-
-  const handleSignInClick = () => {
-    if (!user) {
-      setLoginReason("profile");
-      setLoginModalOpen(true);
-    }
-  };
-
   const handleLocationClick = () => {
     setLocationModalOpen(true);
   };
@@ -217,18 +138,19 @@ export default function App() {
     setDeliveryLocation(location);
   };
 
+  // ✨ NO LOGIN REQUIRED — Direct add to cart
   const handleAddToCart = (item: StoreItem) => {
-    requireLogin("cart", () => {
-      setCart((prev) => {
-        const existing = prev.find((c) => c.ItemName === item.ItemName);
-        if (existing) {
-          return prev.map((c) =>
-            c.ItemName === item.ItemName ? { ...c, qty: c.qty + 1 } : c
-          );
-        }
-        return [...prev, { ...item, qty: 1 }];
-      });
+    setCart((prev) => {
+      const existing = prev.find((c) => c.ItemName === item.ItemName);
+      if (existing) {
+        return prev.map((c) =>
+          c.ItemName === item.ItemName ? { ...c, qty: c.qty + 1 } : c
+        );
+      }
+      return [...prev, { ...item, qty: 1 }];
     });
+    // Optional: show alert
+    // alert("Added to cart!");
   };
 
   const handleUpdateQty = (itemName: string, newQty: number) => {
@@ -246,51 +168,20 @@ export default function App() {
   };
 
   const handleToggleWishlist = (name: string) => {
-    requireLogin("wishlist", () => {
-      setWishlist((prev) =>
-        prev.includes(name) ? prev.filter((n) => n !== name) : [...prev, name]
-      );
-    });
+    setWishlist((prev) =>
+      prev.includes(name) ? prev.filter((n) => n !== name) : [...prev, name]
+    );
   };
 
   const handleWishlistClick = () => {
-    requireLogin("wishlist", () => {
-      setCurrentView("wishlist");
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    });
+    setCurrentView("wishlist");
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const handleClearWishlist = () => {
     if (window.confirm("Clear all items from wishlist?")) {
       setWishlist([]);
     }
-  };
-
-  const handleOrdersClick = () => {
-    requireLogin("orders", () => {
-      setCurrentView("orders");
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    });
-  };
-
-  const handleAddressesClick = () => {
-    requireLogin("profile", () => {
-      setCurrentView("addresses");
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    });
-  };
-
-  const handleNotificationsClick = () => {
-    requireLogin("profile", () => {
-      setCurrentView("notifications");
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    });
-  };
-
-  const handleSettingsClick = () => {
-    requireLogin("profile", () => {
-      alert("Settings page coming soon!");
-    });
   };
 
   const handleCategorySelect = (id: string) => {
@@ -332,14 +223,6 @@ export default function App() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  const handleCheckoutClick = () => {
-    if (cart.length === 0) return;
-    requireLogin("checkout", () => {
-      setCurrentView("checkout");
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    });
-  };
-
   const handleOrderComplete = (orderId: string) => {
     setLastOrderId(orderId);
     setCart([]);
@@ -348,18 +231,16 @@ export default function App() {
   };
 
   const handleBuyNow = (item: StoreItem) => {
-    requireLogin("checkout", () => {
-      setCart((prev) => {
-        const existing = prev.find((c) => c.ItemName === item.ItemName);
-        if (existing) {
-          return prev.map((c) =>
-            c.ItemName === item.ItemName ? { ...c, qty: c.qty + 1 } : c
-          );
-        }
-        return [...prev, { ...item, qty: 1 }];
-      });
-      setTimeout(() => setCurrentView("checkout"), 100);
+    setCart((prev) => {
+      const existing = prev.find((c) => c.ItemName === item.ItemName);
+      if (existing) {
+        return prev.map((c) =>
+          c.ItemName === item.ItemName ? { ...c, qty: c.qty + 1 } : c
+        );
+      }
+      return [...prev, { ...item, qty: 1 }];
     });
+    setTimeout(() => setCurrentView("cart"), 100);
   };
 
   const handleShare = () => {
@@ -413,17 +294,17 @@ export default function App() {
             wishlistCount={wishlist.length}
             searchQuery={searchQuery}
             categories={storeData.DropDownList}
-            user={user}
+            user={null}
             deliveryLocation={deliveryLocation}
             onSearchChange={handleSearchChange}
             onCartClick={handleCartClick}
             onWishlistClick={handleWishlistClick}
-            onProfileClick={handleSignInClick}
-            onOrdersClick={handleOrdersClick}
-            onAddressesClick={handleAddressesClick}
-            onNotificationsClick={handleNotificationsClick}
-            onSettingsClick={handleSettingsClick}
-            onLogout={handleLogout}
+            onProfileClick={() => alert("Profile feature disabled")}
+            onOrdersClick={() => alert("Orders feature disabled")}
+            onAddressesClick={() => alert("Addresses feature disabled")}
+            onNotificationsClick={() => alert("Notifications feature disabled")}
+            onSettingsClick={() => alert("Settings feature disabled")}
+            onLogout={() => {}}
             onLogoClick={handleLogoClick}
             onMobileMenuClick={() => setDrawerOpen(true)}
             onLocationClick={handleLocationClick}
@@ -485,21 +366,12 @@ export default function App() {
       {currentView === "cart" && (
         <CartPage
           cart={cart}
-          onUpdateQty={handleUpdateQty}
-          onRemove={handleRemoveFromCart}
-          onCheckout={handleCheckoutClick}
-          onContinueShopping={handleLogoClick}
-        />
-      )}
-
-      {currentView === "checkout" && (
-        <CheckoutPage
-          cart={cart}
           storeName={storeData.StoreName || "vCartify"}
           storePhone={storeData.PhoneNumber || ""}
-          user={user}
-          onBackToCart={() => setCurrentView("cart")}
+          onUpdateQty={handleUpdateQty}
+          onRemove={handleRemoveFromCart}
           onOrderComplete={handleOrderComplete}
+          onContinueShopping={handleLogoClick}
         />
       )}
 
@@ -522,47 +394,21 @@ export default function App() {
         />
       )}
 
-      {currentView === "orders" && (
-        <OrdersPage
-          onBack={handleLogoClick}
-          onContinueShopping={handleLogoClick}
-        />
-      )}
-
-      {currentView === "addresses" && (
-        <AddressesPage onBack={handleLogoClick} />
-      )}
-
-      {currentView === "notifications" && (
-        <NotificationsPage onBack={handleLogoClick} />
-      )}
-
       <SideDrawer
         isOpen={drawerOpen}
         categories={storeData.DropDownList}
         wishlistCount={wishlist.length}
         cartCount={cartCount}
-        user={user}
+        user={null}
         onClose={() => setDrawerOpen(false)}
         onCategorySelect={handleCategorySelect}
-        onSignInClick={handleSignInClick}
+        onSignInClick={() => alert("Login not required")}
         onWishlistClick={handleWishlistClick}
-        onOrdersClick={handleOrdersClick}
-        onAddressesClick={handleAddressesClick}
-        onNotificationsClick={handleNotificationsClick}
-        onSettingsClick={handleSettingsClick}
-        onLogout={handleLogout}
-      />
-
-      <LoginModal
-        isOpen={loginModalOpen}
-        reason={loginReason}
-        onClose={() => {
-          setLoginModalOpen(false);
-          setLoginReason(null);
-          setPendingAction(null);
-        }}
-        onLoginSuccess={handleLoginSuccess}
+        onOrdersClick={() => alert("Orders feature disabled")}
+        onAddressesClick={() => alert("Addresses feature disabled")}
+        onNotificationsClick={() => alert("Notifications feature disabled")}
+        onSettingsClick={() => alert("Settings feature disabled")}
+        onLogout={() => {}}
       />
 
       <LocationModal
