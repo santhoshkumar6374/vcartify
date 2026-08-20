@@ -32,6 +32,10 @@ export function HomePage({
   onCategoryClick,
   onShopAllClick,
 }: Props) {
+  // Root URL (/) la mattum marketing sections show aagum
+  const isRootPage =
+    window.location.pathname === "/" || window.location.pathname === "";
+
   // Filter usable categories (skip "all")
   const realCategories = categories.filter(
     (c) => c.Text.toLowerCase() !== "all"
@@ -56,27 +60,29 @@ export function HomePage({
 
   return (
     <>
-      {/* 1. Hero Carousel (uses real backend banners) */}
-      <HeroCarousel
-        banners={banners}
-        storeName={storeName}
-        onCtaClick={onShopAllClick}
-      />
+      {/* 1. Hero Carousel - root la mattum */}
+      {isRootPage && (
+        <HeroCarousel
+          banners={banners}
+          storeName={storeName}
+          onCtaClick={onShopAllClick}
+        />
+      )}
 
-      {/* 2. Category Circles (dynamic from backend) */}
+      {/* 2. Category Circles */}
       <CategoryCircles
         categories={categories}
         onCategoryClick={onCategoryClick}
       />
 
-      {/* 3. Today's Best Deals (dark countdown) */}
+      {/* 3. Today's Best Deals */}
       <TodaysEdit
         items={items}
         onProductClick={onProductClick}
         onViewAllClick={onShopAllClick}
       />
 
-      {/* 4. Section 1: First backend category */}
+      {/* 4. Section 1 */}
       {section1Items.length > 0 && cat1 && (
         <ProductShowcase
           tagline={cat1.Text.toUpperCase()}
@@ -92,7 +98,7 @@ export function HomePage({
         />
       )}
 
-      {/* 5. Section 2: Second backend category */}
+      {/* 5. Section 2 */}
       {section2Items.length > 0 && cat2 && (
         <ProductShowcase
           tagline={cat2.Text.toUpperCase()}
@@ -108,7 +114,7 @@ export function HomePage({
         />
       )}
 
-      {/* 6. Section 3: Third backend category */}
+      {/* 6. Section 3 */}
       {section3Items.length > 0 && cat3 && (
         <ProductShowcase
           tagline={cat3.Text.toUpperCase()}
@@ -124,14 +130,14 @@ export function HomePage({
         />
       )}
 
-      {/* 7. Journal / Shopping Guides */}
-      <JournalStories storeName={storeName} />
-
-      {/* 8. Membership Banner */}
-      <MembershipBanner storeName={storeName} />
-
-      {/* 9. Testimonials */}
-      <Testimonials storeName={storeName} />
+      {/* 7, 8, 9 - root home page la mattum */}
+      {isRootPage && (
+        <>
+          <JournalStories storeName={storeName} />
+          <MembershipBanner storeName={storeName} />
+          <Testimonials storeName={storeName} />
+        </>
+      )}
     </>
   );
 }
