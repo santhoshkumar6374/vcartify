@@ -1,9 +1,10 @@
-import { StoreCategory, StoreItem } from "@/types/store";
+import React from 'react';
+import { StoreCategory, StoreItem } from '../../types/store';
 
-interface Props {
+interface CategoryCirclesProps {
   categories: StoreCategory[];
   items?: StoreItem[];
-  onCategoryClick: (id: string) => void;
+  onCategoryClick: (categoryId: string) => void;
 }
 
 const CARD_COLORS = [
@@ -29,39 +30,59 @@ const CATEGORY_EMOJI: Array<{ keywords: string[]; emoji: string }> = [
 ];
 
 function getCategoryEmoji(name: string): string {
-  const lower = name.toLowerCase();
+  const lower = (name || "").toLowerCase();
   const rule = CATEGORY_EMOJI.find((r) =>
     r.keywords.some((kw) => lower.includes(kw))
   );
   return rule?.emoji || "📦";
 }
 
-export function CategoryCircles({ categories, items = [], onCategoryClick }: Props) {
-  const displayCategories = categories
-    .filter((c) => c.Text.toLowerCase() !== "all")
+export function CategoryCircles({
+  categories = [],
+  items = [],
+  onCategoryClick,
+}: CategoryCirclesProps) {
+  const displayCategories = (categories || [])
+    .filter((c) => c && c.Text && c.Text.toLowerCase() !== "all")
     .slice(0, 16);
 
   if (displayCategories.length === 0) return null;
 
-  const getCategoryImage = (categoryId: number): string | null => {
-    const productWithImage = items.find(
-      (item) => item.CategoryId === categoryId && item.FileUrl
-    );
-    return productWithImage?.FileUrl || null;
+  // Format API product image URL
+  const getCategoryImage = (categoryId: number | string): string | null => {
+    if (!items || items.length === 0) return null;
+
+    const productWithImage = items.find((item) => {
+      if (!item) return false;
+      const isSameCategory = String(item.CategoryId) === String(categoryId);
+      const hasImage = Boolean(item.FileUrl || item.ImageUrl);
+      return isSameCategory && hasImage;
+    });
+
+    if (!productWithImage) return null;
+
+    const rawUrl = productWithImage.FileUrl || productWithImage.ImageUrl;
+    if (!rawUrl) return null;
+
+    if (rawUrl.startsWith("data:") || rawUrl.startsWith("http")) {
+      return rawUrl;
+    }
+
+    return `data:image/jpeg;base64,${rawUrl}`;
   };
 
   return (
-    <section className="bg-white py-10 lg:py-14 border-b border-gray-100">
+    <section className="bg-white py-8 border-b border-gray-100">
       <div className="mx-auto max-w-[1500px] px-4">
-        {/* Section Heading — REFINED */}
+        {/* Section Heading */}
         <div className="text-center mb-8">
-          <p className="text-[11px] font-semibold tracking-[0.3em] text-gray-500 mb-2 uppercase">
+          <p className="text-[11px] font-semibold tracking-[0.3em] text-gray-500 mb-1 uppercase">
             Shop by Category
           </p>
           <h2 className="text-2xl lg:text-3xl font-bold text-gray-900 mb-1 tracking-tight">
             Browse Our Collections
           </h2>
-          <p className="text-sm text-gray-600">
+          <p className="text-xs text-gray-500 font-medium">
             Explore quality products across {displayCategories.length} categories
           </p>
         </div>
@@ -75,19 +96,19 @@ export function CategoryCircles({ categories, items = [], onCategoryClick }: Pro
 
             return (
               <button
-                key={cat.Value}
-                onClick={() => onCategoryClick(cat.Text.toLowerCase())}
+                key={cat.Value || idx}
+                onClick={() => onCategoryClick && onCategoryClick(cat.Text ? cat.Text.toLowerCase() : '')}
                 className="group flex flex-col items-center gap-2 transition-transform hover:-translate-y-0.5"
               >
                 <div
-                  className={`w-full aspect-square rounded-xl ${bgColor} shadow-sm group-hover:shadow-md transition-all overflow-hidden flex items-center justify-center relative`}
+                  className={`w-full aspect-square rounded-xl ${bgColor} shadow-sm group-hover:shadow-md transition-all overflow-hidden flex items-center justify-center relative border border-black/5`}
                 >
                   {productImage ? (
                     <img
                       src={productImage}
-                      alt={cat.Text}
+                      alt={cat.Text || "Category"}
                       loading="lazy"
-                      className="h-[75%] w-[75%] object-contain group-hover:scale-110 transition-transform duration-300"
+                      className="h-full w-full object-cover group-hover:scale-110 transition-transform duration-300"
                     />
                   ) : (
                     <span className="text-3xl lg:text-4xl group-hover:scale-110 transition-transform duration-300">
@@ -96,7 +117,7 @@ export function CategoryCircles({ categories, items = [], onCategoryClick }: Pro
                   )}
                 </div>
 
-                {/* Category name — REFINED (not too bold) */}
+                {/* Category name */}
                 <span className="text-[11px] lg:text-xs font-medium text-gray-700 text-center leading-tight px-0.5 line-clamp-2 group-hover:text-gray-900 transition-colors">
                   {cat.Text}
                 </span>

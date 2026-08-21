@@ -3,9 +3,6 @@ import { HeroCarousel } from "@/components/home/HeroCarousel";
 import { CategoryCircles } from "@/components/home/CategoryCircles";
 import { TodaysEdit } from "@/components/home/TodaysEdit";
 import { ProductShowcase } from "@/components/home/ProductShowcase";
-import { JournalStories } from "@/components/home/JournalStories";
-import { MembershipBanner } from "@/components/home/MembershipBanner";
-import { Testimonials } from "@/components/home/Testimonials";
 
 interface Props {
   items: StoreItem[];
@@ -32,7 +29,7 @@ export function HomePage({
   onCategoryClick,
   onShopAllClick,
 }: Props) {
-  // Root URL (/) la mattum marketing sections show aagum
+  
   const isRootPage =
     window.location.pathname === "/" || window.location.pathname === "";
 
@@ -72,6 +69,7 @@ export function HomePage({
       {/* 2. Category Circles */}
       <CategoryCircles
         categories={categories}
+        items={items}
         onCategoryClick={onCategoryClick}
       />
 
@@ -128,15 +126,6 @@ export function HomePage({
           onProductClick={onProductClick}
           onViewAllClick={() => onCategoryClick(cat3.Text.toLowerCase())}
         />
-      )}
-
-      {/* 7, 8, 9 - root home page la mattum */}
-      {isRootPage && (
-        <>
-          <JournalStories storeName={storeName} />
-          <MembershipBanner storeName={storeName} />
-          <Testimonials storeName={storeName} />
-        </>
       )}
     </>
   );

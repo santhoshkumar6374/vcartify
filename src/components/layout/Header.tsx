@@ -32,7 +32,6 @@ export function Header({
   cartCount,
   wishlistCount,
   searchQuery,
-  categories = [],
   user,
   deliveryLocation = { city: "Tirupur", pincode: "641604" },
   onSearchChange,
@@ -48,8 +47,6 @@ export function Header({
   onMobileMenuClick,
   onLocationClick,
 }: HeaderProps) {
-  const [selectedCategory, setSelectedCategory] = useState("All");
-  const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
   const [showMobileSearch, setShowMobileSearch] = useState(false);
   const [showProfileDropdown, setShowProfileDropdown] = useState(false);
 
@@ -96,7 +93,7 @@ export function Header({
               )}
             </button>
 
-            {/* ✨ Deliver to — NOW CLICKABLE! */}
+            {/* ✨ Deliver to — CLICKABLE */}
             <button
               onClick={onLocationClick}
               className="hidden xl:flex items-center gap-1.5 h-11 px-2 rounded-lg border border-transparent hover:border-black hover:bg-gray-50 transition-all group"
@@ -113,68 +110,14 @@ export function Header({
               </div>
             </button>
 
-            {/* Search Bar */}
+            {/* Clean Search Bar (Without "All" Dropdown) */}
             <div className="flex-1 flex items-stretch h-11 rounded-lg overflow-hidden shadow-sm min-w-0 border-2 border-gray-300 focus-within:border-black transition-colors bg-white">
-              <div className="relative shrink-0">
-                <button
-                  onClick={() => setShowCategoryDropdown(!showCategoryDropdown)}
-                  className="h-full flex items-center gap-1 px-2 lg:px-3 bg-gray-100 hover:bg-gray-200 text-black text-xs font-bold border-r border-gray-300 transition-colors"
-                >
-                  <span className="max-w-[50px] lg:max-w-[100px] truncate">
-                    {selectedCategory}
-                  </span>
-                  <ChevronDown size={14} className="shrink-0" />
-                </button>
-
-                {showCategoryDropdown && (
-                  <>
-                    <div
-                      className="fixed inset-0 z-30"
-                      onClick={() => setShowCategoryDropdown(false)}
-                    />
-                    <div className="absolute top-full left-0 mt-1 w-56 max-h-80 overflow-y-auto bg-white text-black rounded-lg shadow-2xl border-2 border-black z-40">
-                      <button
-                        onClick={() => {
-                          setSelectedCategory("All");
-                          setShowCategoryDropdown(false);
-                        }}
-                        className={`w-full text-left px-3 py-2 text-sm hover:bg-gray-100 font-semibold ${
-                          selectedCategory === "All"
-                            ? "bg-black text-white font-black"
-                            : ""
-                        }`}
-                      >
-                        All Departments
-                      </button>
-                      {categories
-                        .filter((c) => c.Text.toLowerCase() !== "all")
-                        .map((cat) => (
-                          <button
-                            key={cat.Value}
-                            onClick={() => {
-                              setSelectedCategory(cat.Text);
-                              setShowCategoryDropdown(false);
-                            }}
-                            className={`w-full text-left px-3 py-2 text-sm hover:bg-gray-100 font-semibold ${
-                              selectedCategory === cat.Text
-                                ? "bg-black text-white font-black"
-                                : ""
-                            }`}
-                          >
-                            {cat.Text}
-                          </button>
-                        ))}
-                    </div>
-                  </>
-                )}
-              </div>
-
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => onSearchChange(e.target.value)}
                 placeholder={`Search ${storeName}.in`}
-                className="flex-1 min-w-0 px-3 text-sm font-semibold text-black placeholder:text-gray-400 focus:outline-none bg-white"
+                className="flex-1 min-w-0 px-4 text-sm font-semibold text-black placeholder:text-gray-400 focus:outline-none bg-white"
               />
 
               <button
