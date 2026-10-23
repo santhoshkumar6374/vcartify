@@ -260,7 +260,6 @@ function FilterTab({
 function OrderCard({ order }: { order: Order }) {
   const config = STATUS_CONFIG[order.status];
   const StatusIcon = config.icon;
-  const totalItems = order.items.reduce((sum, item) => sum + item.qty, 0);
 
   return (
     <article className="bg-white rounded-xl border-2 border-gray-200 hover:border-black transition-colors overflow-hidden">

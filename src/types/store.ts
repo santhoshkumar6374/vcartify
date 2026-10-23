@@ -9,6 +9,7 @@ export interface StoreCategory {
 export interface StoreItem {
   CategoryId: number;
   FileUrl: string | null;
+  ImageUrl?: string | null;
   ItemName: string;
   Description: string | null;
   MRP: number;

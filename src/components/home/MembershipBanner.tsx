@@ -13,28 +13,28 @@ interface Props {
 
 export function MembershipBanner({ storeName = "vCartify" }: Props) {
   return (
-    <section className="relative py-16 lg:py-20 bg-gray-900 overflow-hidden">
+    <section className="relative py-16 lg:py-20 bg-[#243122] overflow-hidden border-t border-[#344531]">
       {/* Decorative dots */}
       <div
-        className="absolute inset-0 opacity-5"
+        className="absolute inset-0 opacity-10"
         style={{
           backgroundImage:
-            "radial-gradient(circle at 20% 30%, white 1px, transparent 1px), radial-gradient(circle at 80% 70%, white 1px, transparent 1px)",
-          backgroundSize: "60px 60px",
+            "radial-gradient(circle at 20% 30%, #f5f0e6 1px, transparent 1px), radial-gradient(circle at 80% 70%, #f5f0e6 1px, transparent 1px)",
+          backgroundSize: "40px 40px",
         }}
       />
 
-      <div className="relative mx-auto max-w-4xl px-6 text-center text-white">
-        <p className="text-[11px] font-semibold tracking-[0.3em] text-yellow-400 mb-3 uppercase">
-          {storeName} Prime
+      <div className="relative mx-auto max-w-4xl px-6 text-center text-[#faf7f2]">
+        <p className="text-[11px] font-semibold tracking-[0.3em] text-[#d8c29d] mb-3 uppercase">
+          {storeName} Privilege
         </p>
 
-        <h2 className="text-3xl lg:text-5xl font-bold mb-3 tracking-tight">
-          Join {storeName} Prime
+        <h2 className="text-3xl lg:text-5xl font-serif font-bold mb-3 tracking-tight">
+          Join {storeName} Circle
         </h2>
 
-        <p className="text-base lg:text-lg text-white/80 max-w-xl mx-auto mb-10">
-          Unlock exclusive benefits, faster delivery, and members-only prices
+        <p className="text-base lg:text-lg text-[#ede5d7]/85 max-w-xl mx-auto mb-10 font-light">
+          Unlock curated perks, priority courier delivery, and privileged member benefits
         </p>
 
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-6 lg:gap-8 mb-10">
@@ -42,10 +42,10 @@ export function MembershipBanner({ storeName = "vCartify" }: Props) {
             const Icon = perk.icon;
             return (
               <div key={perk.label} className="flex flex-col items-center gap-2.5">
-                <div className="h-14 w-14 rounded-full bg-white/10 border border-white/20 flex items-center justify-center backdrop-blur">
-                  <Icon size={22} className="text-white" strokeWidth={2} />
+                <div className="h-14 w-14 rounded-2xl bg-[#faf7f2]/10 border border-[#faf7f2]/20 flex items-center justify-center backdrop-blur shadow-sm">
+                  <Icon size={22} className="text-[#ede5d7]" strokeWidth={2} />
                 </div>
-                <span className="text-xs font-medium text-white/90 text-center">
+                <span className="text-xs font-medium text-[#ede5d7] text-center tracking-wide">
                   {perk.label}
                 </span>
               </div>
@@ -53,8 +53,8 @@ export function MembershipBanner({ storeName = "vCartify" }: Props) {
           })}
         </div>
 
-        <button className="px-8 py-3 rounded-lg bg-white text-gray-900 text-sm font-semibold hover:bg-gray-100 transition-colors shadow-xl">
-          Become a Prime Member
+        <button className="px-8 py-3.5 rounded-lg bg-[#faf7f2] text-[#243122] text-sm font-semibold hover:bg-[#ede5d7] transition-all shadow-xl">
+          Become an Exclusive Member
         </button>
       </div>
     </section>

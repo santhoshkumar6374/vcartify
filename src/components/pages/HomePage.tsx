@@ -30,9 +30,6 @@ export function HomePage({
   onShopAllClick,
 }: Props) {
   
-  const isRootPage =
-    window.location.pathname === "/" || window.location.pathname === "";
-
   // Filter usable categories (skip "all")
   const realCategories = categories.filter(
     (c) => c.Text.toLowerCase() !== "all"
@@ -57,20 +54,20 @@ export function HomePage({
 
   return (
     <>
-      {/* 1. Hero Carousel - root la mattum */}
-      {isRootPage && (
-        <HeroCarousel
-          banners={banners}
-          storeName={storeName}
-          onCtaClick={onShopAllClick}
-        />
-      )}
+      {/* 1. Hero Carousel */}
+      <HeroCarousel
+        banners={banners}
+        storeName={storeName}
+        onCtaClick={onShopAllClick}
+      />
 
       {/* 2. Category Circles */}
       <CategoryCircles
         categories={categories}
         items={items}
         onCategoryClick={onCategoryClick}
+        onProductClick={onProductClick}
+        onAddToCart={onAddToCart}
       />
 
       {/* 3. Today's Best Deals */}

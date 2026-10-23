@@ -122,8 +122,7 @@ function generateVendorOrderMessage(params: {
     : "";
 
   return `🛒 *New Order - ${vendorName}*
-${orderInfo}
-━━━━━━━━━━━━━━━━━━━━
+${orderId ? `🔖 *Order ID:* ${orderId}\n` : ""}${orderInfo}━━━━━━━━━━━━━━━━━━━━
 📦 *ORDER DETAILS*
 ━━━━━━━━━━━━━━━━━━━━
 
@@ -136,6 +135,7 @@ ${productsList}
 *Subtotal:* ₹${subtotal.toLocaleString()}
 *Delivery:* FREE
 *Total:* ₹${subtotal.toLocaleString()}
+*Payment:* ${paymentMethod || "Cash on Delivery"}
 
 ━━━━━━━━━━━━━━━━━━━━
 👤 *CUSTOMER DETAILS*

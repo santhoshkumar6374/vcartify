@@ -13,9 +13,9 @@ export function ProductTabs({ item, reviewCount = 2543 }: Props) {
   const [activeTab, setActiveTab] = useState<Tab>("description");
 
   return (
-    <div className="bg-white rounded-none sm:rounded-2xl border-0 sm:border border-gray-200 sm:shadow-sm overflow-hidden">
+    <div className="bg-[#fcfaf6] rounded-none sm:rounded-2xl border-0 sm:border border-[#e5ddd0] sm:shadow-xs overflow-hidden">
       {/* Tab Headers */}
-      <div className="flex border-b border-gray-200 bg-gray-50/50 overflow-x-auto scrollbar-hide">
+      <div className="flex border-b border-[#e5ddd0] bg-[#f5f0e6] overflow-x-auto scrollbar-hide">
         <TabButton
           isActive={activeTab === "description"}
           onClick={() => setActiveTab("description")}
@@ -40,7 +40,7 @@ export function ProductTabs({ item, reviewCount = 2543 }: Props) {
       <div className="p-4 sm:p-6 lg:p-8">
         {activeTab === "description" && (
           <div className="max-w-none">
-            <p className="text-sm sm:text-base text-gray-700 leading-relaxed">
+            <p className="text-sm sm:text-base text-[#384435] leading-relaxed font-serif">
               {item.Description ||
                 `Exquisite ${item.ItemName} with intricate detailing. Perfect for weddings and festive occasions. Crafted from the finest materials with meticulous attention to quality and design.`}
             </p>
@@ -53,7 +53,7 @@ export function ProductTabs({ item, reviewCount = 2543 }: Props) {
             <SpecRow label="Category" value="Products" />
             <SpecRow label="Colors" value="Red, Blue, Green, Gold" />
             <SpecRow label="Sizes" value="Free Size" />
-            <SpecRow label="Vendor" value="vCartify Store" />
+            <SpecRow label="Vendor" value="vCartify Artisan" />
             <SpecRow label="Origin" value="India" />
             <SpecRow label="Rating" value="4.3 / 5" isLast />
           </div>
@@ -79,13 +79,13 @@ function TabButton({
       onClick={onClick}
       className={`relative px-4 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm font-medium transition-colors whitespace-nowrap ${
         isActive
-          ? "text-gray-900 bg-white"
-          : "text-gray-600 hover:text-gray-900 hover:bg-white/50"
+          ? "text-[#20291e] bg-[#fcfaf6] font-semibold"
+          : "text-[#657161] hover:text-[#20291e] hover:bg-[#ede5d7]/50"
       }`}
     >
       {children}
       {isActive && (
-        <span className="absolute bottom-0 left-3 sm:left-4 right-3 sm:right-4 h-0.5 bg-gray-900 rounded-t" />
+        <span className="absolute bottom-0 left-3 sm:left-4 right-3 sm:right-4 h-0.5 bg-[#384a35] rounded-t" />
       )}
     </button>
   );

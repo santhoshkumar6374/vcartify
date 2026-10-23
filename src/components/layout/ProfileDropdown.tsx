@@ -1,6 +1,5 @@
 import { useEffect, useRef } from "react";
 import {
-  User,
   Package,
   Heart,
   MapPin,

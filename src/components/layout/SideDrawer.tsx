@@ -77,7 +77,11 @@ export function SideDrawer({
   }, [isOpen, onClose]);
 
   const realCategories = categories.filter(
-    (c) => c.Text.toLowerCase() !== "all"
+    (c) =>
+      c &&
+      c.Text &&
+      c.Text.toLowerCase() !== "all" &&
+      !c.Text.toLowerCase().includes("trader")
   );
 
   // Help & Support items depend on login state
@@ -225,14 +229,14 @@ export function SideDrawer({
 
       {/* Side Drawer */}
       <aside
-        className={`fixed top-0 left-0 h-full w-[85%] max-w-[380px] bg-white shadow-2xl z-[70] transition-transform duration-300 ease-out flex flex-col ${
+        className={`fixed top-0 left-0 h-full w-[85%] max-w-[380px] bg-[#faf7f2] shadow-2xl z-[70] transition-transform duration-300 ease-out flex flex-col border-r border-[#e5ddd0] ${
           isOpen ? "translate-x-0" : "-translate-x-full"
         }`}
         role="dialog"
         aria-label="Navigation menu"
       >
-        {/* Header (BLACK) */}
-        <div className="bg-black text-white flex items-center justify-between px-5 py-5 shrink-0 shadow-lg">
+        {/* Header (Deep Olive) */}
+        <div className="bg-[#243122] text-[#faf7f2] flex items-center justify-between px-5 py-5 shrink-0 shadow-md border-b border-[#384a35]">
           <button
             onClick={() => {
               onSignInClick();
@@ -240,22 +244,22 @@ export function SideDrawer({
             }}
             className="flex items-center gap-3 hover:opacity-90 transition-opacity flex-1 min-w-0"
           >
-            <div className="h-11 w-11 rounded-full bg-white/20 flex items-center justify-center border-2 border-white/40 shrink-0">
-              <User size={22} strokeWidth={2.5} />
+            <div className="h-11 w-11 rounded-full bg-[#384a35] flex items-center justify-center border border-[#d8c29d]/40 text-[#faf7f2] shrink-0">
+              <User size={22} strokeWidth={2} />
             </div>
             <div className="text-left min-w-0">
               {user ? (
                 <>
-                  <p className="text-xs text-white/70 font-semibold">
+                  <p className="text-xs text-[#faf7f2]/70 font-medium">
                     Welcome back,
                   </p>
-                  <p className="text-lg font-black tracking-tight truncate">
+                  <p className="text-lg font-serif font-bold tracking-tight truncate text-[#faf7f2]">
                     {user.name}
                   </p>
                 </>
               ) : (
-                <span className="text-xl font-black tracking-tight">
-                  Hello, sign in
+                <span className="text-lg font-serif font-bold tracking-tight text-[#faf7f2]">
+                  Welcome Guest
                 </span>
               )}
             </div>
@@ -264,41 +268,41 @@ export function SideDrawer({
           <button
             onClick={onClose}
             aria-label="Close menu"
-            className="h-10 w-10 rounded-full hover:bg-white/15 flex items-center justify-center transition-colors shrink-0"
+            className="h-10 w-10 rounded-full hover:bg-white/10 flex items-center justify-center transition-colors shrink-0 text-[#faf7f2]"
           >
-            <X size={24} strokeWidth={2.5} />
+            <X size={22} strokeWidth={2} />
           </button>
         </div>
 
         {/* Scrollable Menu Body */}
-        <div className="flex-1 overflow-y-auto text-black bg-white">
+        <div className="flex-1 overflow-y-auto text-[#243122] bg-[#faf7f2]">
           {sections.map((section, sectionIdx) => (
             <div
               key={section.title}
-              className={sectionIdx > 0 ? "border-t-2 border-gray-200" : ""}
+              className={sectionIdx > 0 ? "border-t border-[#ede5d7]" : ""}
             >
               {/* Section title */}
-              <h3 className="px-5 pt-6 pb-3 text-xl font-black text-black tracking-tight">
+              <h3 className="px-5 pt-6 pb-2.5 text-xs font-bold tracking-[0.18em] uppercase text-[#738271]">
                 {section.title}
               </h3>
 
               {/* Section items */}
-              <ul>
+              <ul className="space-y-0.5 px-2">
                 {section.items.map((item, itemIdx) => (
                   <li key={`${item.label}-${itemIdx}`}>
                     <button
                       onClick={item.onClick}
-                      className={`w-full flex items-center gap-3 px-5 py-3.5 text-left text-base transition-colors ${
+                      className={`w-full flex items-center gap-3 px-3.5 py-3 rounded-lg text-left text-sm transition-all ${
                         item.isActive
-                          ? "bg-black text-white font-black"
-                          : "text-black font-semibold hover:bg-gray-100"
+                          ? "bg-[#384a35] text-[#faf7f2] font-semibold shadow-sm"
+                          : "text-[#243122] font-medium hover:bg-[#ede5d7] hover:text-[#243122]"
                       }`}
                     >
                       {/* Icon */}
                       {item.icon && (
                         <span
                           className={
-                            item.isActive ? "text-white" : "text-black"
+                            item.isActive ? "text-[#faf7f2]" : "text-[#546850]"
                           }
                         >
                           {item.icon}
@@ -311,10 +315,10 @@ export function SideDrawer({
                       {/* Badge */}
                       {item.badge !== undefined && (
                         <span
-                          className={`min-w-[24px] h-6 px-2 rounded-full text-xs font-black flex items-center justify-center ${
+                          className={`min-w-[22px] h-5 px-1.5 rounded-full text-xs font-bold flex items-center justify-center ${
                             item.isActive
-                              ? "bg-white text-black"
-                              : "bg-black text-white"
+                              ? "bg-[#faf7f2] text-[#243122]"
+                              : "bg-[#243122] text-[#faf7f2]"
                           }`}
                         >
                           {item.badge}
@@ -324,10 +328,10 @@ export function SideDrawer({
                       {/* Chevron */}
                       {item.hasChevron && (
                         <ChevronRight
-                          size={18}
-                          strokeWidth={2.5}
+                          size={16}
+                          strokeWidth={2}
                           className={`shrink-0 ${
-                            item.isActive ? "text-white" : "text-black"
+                            item.isActive ? "text-[#faf7f2]/80" : "text-[#8a9987]"
                           }`}
                         />
                       )}
@@ -338,12 +342,12 @@ export function SideDrawer({
                 {/* "See all" link */}
                 {section.showSeeAll && (
                   <li>
-                    <button className="w-full flex items-center gap-2 px-5 py-3.5 text-left text-base text-black font-bold hover:bg-gray-100 transition-colors">
+                    <button className="w-full flex items-center gap-2 px-3.5 py-3 rounded-lg text-left text-sm text-[#384a35] font-semibold hover:bg-[#ede5d7] transition-colors">
                       <span>See all categories</span>
                       <ChevronDown
-                        size={18}
-                        strokeWidth={2.5}
-                        className="text-black"
+                        size={16}
+                        strokeWidth={2}
+                        className="text-[#384a35]"
                       />
                     </button>
                   </li>
@@ -357,15 +361,15 @@ export function SideDrawer({
         </div>
 
         {/* Bottom Sticky Language/Country Bar */}
-        <div className="border-t-2 border-black bg-gray-100 px-5 py-4 shrink-0">
-          <button className="flex items-center justify-between w-full hover:opacity-80 transition-opacity">
+        <div className="border-t border-[#e5ddd0] bg-[#ede5d7] px-5 py-4 shrink-0">
+          <button className="flex items-center justify-between w-full hover:opacity-85 transition-opacity">
             <div className="flex items-center gap-3">
-              <span className="text-2xl">🇮🇳</span>
-              <span className="text-base font-black text-black tracking-tight">
+              <span className="text-xl">🇮🇳</span>
+              <span className="text-sm font-semibold text-[#243122] tracking-tight">
                 India | English
               </span>
             </div>
-            <ChevronRight size={20} strokeWidth={2.5} className="text-black" />
+            <ChevronRight size={18} strokeWidth={2} className="text-[#384a35]" />
           </button>
         </div>
       </aside>

@@ -103,23 +103,23 @@ function LogoIcon({ size }: { size: "sm" | "md" | "lg" | "xl" }) {
       aria-label="vCartify logo"
     >
       <defs>
-        <linearGradient id="vBlueGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-          <stop offset="0%" stopColor="#3b82f6" />
-          <stop offset="100%" stopColor="#1e40af" />
+        <linearGradient id="vOliveGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stopColor="#6f8769" />
+          <stop offset="100%" stopColor="#384a35" />
         </linearGradient>
-        <linearGradient id="vOrangeGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-          <stop offset="0%" stopColor="#fb923c" />
-          <stop offset="100%" stopColor="#ea580c" />
+        <linearGradient id="vGoldGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stopColor="#e2b857" />
+          <stop offset="100%" stopColor="#b58326" />
         </linearGradient>
       </defs>
-      <path d="M 15 25 L 22 25 L 28 62 L 72 62 L 76 42" stroke="#1a1a2e" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
-      <path d="M 32 20 L 50 62 L 50 20 Z" fill="url(#vBlueGradient)"/>
-      <path d="M 50 20 L 50 62 L 68 20 Z" fill="url(#vOrangeGradient)"/>
-      <path d="M 78 40 L 92 40" stroke="#fb923c" strokeWidth="4" strokeLinecap="round"/>
-      <path d="M 76 48 L 90 48" stroke="#fb923c" strokeWidth="4" strokeLinecap="round"/>
-      <path d="M 78 56 L 88 56" stroke="#fb923c" strokeWidth="4" strokeLinecap="round"/>
-      <circle cx="35" cy="80" r="5" fill="#1a1a2e"/>
-      <circle cx="65" cy="80" r="5" fill="#1a1a2e"/>
+      <path d="M 15 25 L 22 25 L 28 62 L 72 62 L 76 42" stroke="#20291e" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
+      <path d="M 32 20 L 50 62 L 50 20 Z" fill="url(#vOliveGradient)"/>
+      <path d="M 50 20 L 50 62 L 68 20 Z" fill="url(#vGoldGradient)"/>
+      <path d="M 78 40 L 92 40" stroke="#9c4124" strokeWidth="4" strokeLinecap="round"/>
+      <path d="M 76 48 L 90 48" stroke="#b58326" strokeWidth="4" strokeLinecap="round"/>
+      <path d="M 78 56 L 88 56" stroke="#9c4124" strokeWidth="4" strokeLinecap="round"/>
+      <circle cx="35" cy="80" r="5" fill="#20291e"/>
+      <circle cx="65" cy="80" r="5" fill="#20291e"/>
     </svg>
   );
 }
@@ -145,18 +145,18 @@ function LogoText({
       <span className={`${t.main} font-black tracking-tight leading-none`}>
         <span
           className="bg-clip-text text-transparent"
-          style={{ backgroundImage: "linear-gradient(180deg, #3b82f6 0%, #1e40af 100%)" }}
+          style={{ backgroundImage: "linear-gradient(180deg, #c89b3c 0%, #8c661c 100%)" }}
         >
-          v
+          V
         </span>
-        <span className="text-[#1a1a2e]">Cartify</span>
+        <span className="text-[#20291e]">Cartify</span>
       </span>
 
       {showTagline && (
-        <span className={`${t.tagline} font-semibold text-gray-500 tracking-[0.15em] uppercase mt-0.5 flex items-center gap-1.5`}>
-          <span className="h-px w-3 bg-gray-400" />
+        <span className={`${t.tagline} font-semibold text-[#5c6e56] tracking-[0.15em] uppercase mt-0.5 flex items-center gap-1.5`}>
+          <span className="h-px w-3 bg-[#c89b3c]" />
           Shop Smart, Live Better
-          <span className="h-px w-3 bg-gray-400" />
+          <span className="h-px w-3 bg-[#c89b3c]" />
         </span>
       )}
     </div>

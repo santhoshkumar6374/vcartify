@@ -6,10 +6,10 @@ import {
   Tag,
   Truck,
   Gift,
-  CheckCircle,
+ // CheckCircle,
   Trash2,
   Check,
-  Star,
+  //Star,
 } from "lucide-react";
 
 const NOTIFICATIONS_STORAGE_KEY = "store_notifications";
